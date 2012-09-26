@@ -24,6 +24,7 @@
                    projectFiles="false"
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
+      <itemPath>test.txt</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
