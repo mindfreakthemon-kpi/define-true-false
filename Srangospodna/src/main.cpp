@@ -10,7 +10,6 @@
 #include <fstream>
 //#include <pcrecpp.h>
 #include <string>
-#include <Token.h>
 
 using namespace std;
 
