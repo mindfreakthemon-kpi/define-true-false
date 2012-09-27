@@ -11,8 +11,8 @@
 #include "Constants.h"
 
 Lexer::Lexer(std::string text) {
-	col=0;
-	row=0;
+	col=1;
+	row=1;
 	this->text = text;
 	readedChars=-1;
 }
@@ -38,9 +38,9 @@ Lexer::~Lexer() {
 }
 
 char Lexer::getNextChar() {
-	int ololo = text.length() - 1;
+	int textSize = text.length() - 1;
 	
-	if(readedChars >= ololo)
+	if(readedChars >= textSize)
 		return 0;
 	
 	char c;
