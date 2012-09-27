@@ -10,12 +10,14 @@
 
 class Token {
 public:	
-	Token(int i);
+	Token(int type, int col, int row);
 	virtual ~Token();
 	
 	int getType();
 private:
 	int type;
+	int col;
+	int row;
 };
 
 #endif	/* TOKEN_H */
