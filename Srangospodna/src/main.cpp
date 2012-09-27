@@ -10,8 +10,9 @@
 #include <fstream>
 //#include <pcrecpp.h>
 #include <string>
+#include <vector>
 #include <Token.h>
-
+#include <Lexer.h>
 using namespace std;
 
 /*
@@ -20,25 +21,34 @@ using namespace std;
 int main(int argc, char** argv) {
 	if (argc <= 1) {
         cout << "Usage: " << argv[0] << " <Filename>" << endl;
+		system("pause");
         exit(1);
     }
 	
 	char *filename = argv[1];
 	
-	string line;
+	string line,text;
 	ifstream file (filename);
 	
 	while ( file.good() ) {
 		if (file.is_open()) {
 			while (file.good()) {
 				getline(file, line);
-				cout << line << endl;
+				text.append(line);
+				text.append("\n");
+				//cout << line << endl;
 			}
 			file.close();
+			cout << "readed file:" << endl << text;
 		}
-	}	
-			
-	
+	}
+	//TODO rework this peace of code
+	vector<Token*> tokens;
+	Lexer lexer(text);
+	for(int i = 0; i<=100; i++) {
+		tokens.push_back(lexer.scan());
+	} 
+	system("pause");
 	return 0;
 }
 

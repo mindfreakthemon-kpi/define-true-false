@@ -7,13 +7,15 @@
 
 #include "Token.h"
 
-Token::Token(int i) {
-	type = i;
+Token::Token(int type, int col, int row) {
+	this->type = type;
+	this->col = col;
+	this->row = row;
 }
 
 Token::~Token() {
 }
 
-Token::getType() {
+int Token::getType() {
 	return type;
 }
