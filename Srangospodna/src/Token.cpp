@@ -14,6 +14,6 @@ Token::Token(int i) {
 Token::~Token() {
 }
 
-Token::getType() {
+int Token::getType() {
 	return type;
 }

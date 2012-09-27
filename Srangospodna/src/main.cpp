@@ -18,9 +18,9 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 	if (argc <= 1) {
-        cout << "Usage: " << argv[0] << " <Filename>" << endl;
-        exit(1);
-    }
+		cout << "Usage: " << argv[0] << " <Filename>" << endl;
+		exit(1);
+	}
 	
 	char *filename = argv[1];
 	
@@ -35,8 +35,7 @@ int main(int argc, char** argv) {
 			}
 			file.close();
 		}
-	}	
-			
+	}
 	
 	return 0;
 }
