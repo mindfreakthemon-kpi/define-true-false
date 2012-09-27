@@ -8,6 +8,8 @@
 #ifndef CONSTANTS_H
 #define	CONSTANTS_H
 
+#define CONSTANTS_SEPARATORS_LEN 9
+
 class Constants {
 public:
 	static const char* const KEYWORDS[];

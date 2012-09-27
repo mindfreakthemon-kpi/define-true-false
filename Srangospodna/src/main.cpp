@@ -13,6 +13,7 @@
 #include <vector>
 #include <Token.h>
 #include <Lexer.h>
+
 using namespace std;
 
 /*
@@ -21,7 +22,7 @@ using namespace std;
 int main(int argc, char** argv) {
 	if (argc <= 1) {
         cout << "Usage: " << argv[0] << " <Filename>" << endl;
-		system("pause");
+		cin.get();
         exit(1);
     }
 	
@@ -47,8 +48,9 @@ int main(int argc, char** argv) {
 	Lexer lexer(text);
 	for(int i = 0; i<=100; i++) {
 		tokens.push_back(lexer.scan());
-	} 
-	system("pause");
+	}
+	
+	cin.get();
 	return 0;
 }
 
