@@ -13,7 +13,7 @@
 #include <vector>
 #include <Token.h>
 #include <Lexer.h>
-
+#include "Tag.h"
 using namespace std;
 
 /*
@@ -47,7 +47,14 @@ int main(int argc, char** argv) {
 	vector<Token*> tokens;
 	Lexer lexer(text);
 	for(int i = 0; i<=100; i++) {
-		tokens.push_back(lexer.scan());
+		//tokens.push_back(lexer.scan());
+		Token * tok = lexer.scan();
+		if(tok != NULL){
+			cout << "Token:" << tok->getKind() << " that represents char:" << (char)tok->getKind() << endl;
+			if(tok->getKind() == Tag::STRING){
+				cout << ((StringToken*)tok)->getData() << endl;
+			}
+		}
 	}
 	
 	cin.get();

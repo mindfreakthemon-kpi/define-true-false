@@ -13,7 +13,7 @@ class Lexer {
 public:
     Lexer(std::string text);
     Token* scan();
-    virtual ~Lexer();
+    //virtual ~Lexer();
 private:
 	char getNextChar();
 	std::string text;

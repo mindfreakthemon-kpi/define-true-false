@@ -10,6 +10,12 @@
 
 class Tag {
 public:
+	//one symbol tokens
+	static const int LF_BRACE = '(';
+	static const int RT_BRACE = ')';
+	static const int LF_BRACKET = '{';
+	static const int RT_BRACKET = '}';
+
 	static const int ID = 256;
 	static const int INT = 257;
 	static const int DOUBLE = 258;
