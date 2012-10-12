@@ -8,73 +8,78 @@
 #ifndef TOKEN_H
 #define	TOKEN_H
 #include <string>
-
+#include <iostream>
+#include <sstream>
 namespace token {
 	enum TokenKind {
-		//one symbol tokens
-		LF_PARENTHESES = '(',
-		RT_PARENTHESES = ')',
-		LF_CR_BRACKET = '{',
-		RT_CR_BRACKET = '}',
-		LF_SQ_BRACKET = '[',
-		RT_SQ_BRACKET = ']',
+		LF_PARENTHESES = 1,//'('
+		RT_PARENTHESES, //')'
+		LF_CR_BRACKET,//'{'
+		RT_CR_BRACKET,//'}'
+		LF_SQ_BRACKET,//'['
+		RT_SQ_BRACKET,//']'
 
-		SEMICOLON = ';',
-		COLON = ':',
-		COMMA = ',',
-		LESS = '<',
-		MORE = '>',
+		SEMICOLON,//';'
+		COLON,//':'
+		COMMA,//','
+		LESS,//'<'
+		MORE,//'>'
 		
-		PLUS = '+',
-		MINUS = '-',
-		MULT = '*',
-		DIVIDE = '/',
-		CARET = '^',
+		PLUS,//'+'
+		MINUS,//'-'
+		MULT,//'*'
+		DIVIDE,//'/'
+		CARET,//'^'
 		
-		DOUBLE_QUOTE = '"',
-		QUOTE = '\'',
+		DOUBLE_QUOTE,//'"'
+		QUOTE,//'\''
 
-		ID = 256,
-		INT = 257,
-		DOUBLE = 258,
-		STRING = 259,
-		BOOL = 260,
+		ID,
+		INT,
+		DOUBLE,
+		STRING,
+		BOOL,
 	
-		OPERATOR = 261,
-		COMMENT = 262,
+		OPERATOR,
+		COMMENT,
 	
-		TYPE_SCALAR = 263,
-		TYPE_ARRAY = 264
+		TYPE_SCALAR,
+		TYPE_ARRAY,
+
+		LT //last token of file
 	};
-} 
+	struct SourceLocation {
+		int row;
+		int col;
+		SourceLocation(int row,int col):row(row),col(col){}
+		SourceLocation(){row = 0; col = 0;}
+		std::string toString(){
+			std::stringstream ss;
+			ss << "row:" << row << ";col:" << col;
+			return ss.str();
+		}
+	};
+	class Token {
+		//private section first because of MINGW warning "when initialized here" o_O
+		//this warning related with a list of initialization and field order
+		//the other solution - change list of initialization:)
+	private:
+		int _kind;
 
+	public:
+		Token(int kind, SourceLocation loc):_kind(kind),_loc(loc),_string_data(""){}
+		Token(int kind, SourceLocation loc,std::string string_data):_kind(kind),_loc(loc),_string_data(string_data){}
+		int getKind() {
+			return _kind;
+		}
+		~Token() {
+		}
+		SourceLocation _loc;
+		std::string _string_data;
+		//TODO add pointers to other data, like int, double...
 
-class Token {
-public:	
-	Token(int type, int col, int row):type(type),col(col),row(row) {}
-
-	//virtual ~Token
-	//();
-	
-	int getKind() {
-		return type;
-	}
-private:
-	int type;
-	int col;
-	int row;
-};
-
-class StringToken : public Token {
-public:
-	StringToken(int type, int col, int row, std::string data):Token(type,col,row),data(data) {}
-
-	std::string getData(){
-		return data;
-	}
-private:
-	std::string data;
-};
+	};
+}
 
 #endif	/* TOKEN_H */
 
