@@ -1,0 +1,49 @@
+```bnf
+<program> = { <funcDecl> }
+
+;<IDENTIFIER> = /[a-z][a-z0-9_]*/i
+
+;<intLiteral> = /0|[1-9][0-9]+/
+;<doubleLiteral> = <intLiteral> "." /[0-9]*[1-9]/
+;<stringLiteral> = /"(?:[^"\\]|\\.)*"/s
+<boolLiteral> = "true" | "false"
+<anyLiteral> = <intLiteral> | <doubleLiteral> | <stringLiteral> | <boolLiteral>
+
+<scalarType> = "int" | "double" | "bool"
+<anyType> = <scalarType> | <scalarType> "[]" | "string"
+<returnType> = <anyType> | "void"
+
+<statement> = <statement_body> ";"
+<statement_body> = <return> | <assignment> | <boolExpression>
+
+<assignment> = <boolExpression> "=" <boolExpression>
+<var> = <IDENTIFIER> [ "[" <expression> "]" ]
+<boolExpression> = <boolTerm> [ ("||" | "^^") <boolExpression> ]
+<boolTerm> = <boolNotFactor> [ "&&" <boolTerm> ]
+<boolNotFactor> = [ "!" ] <boolNotFactor>
+<boolRelation> = <binExpression> [ ("==" | "!=" | "<=" | ">=" | "<" | ">") <binExpression> ]
+<binExpression> = <binTerm> [ ("|" | "^") <binExpression> ]
+<binTerm> = <binNotFactor> [ "&" <binTerm> ]
+<binNotFactor> = [ "~" ] <expression>
+<expression> = <term> [ ("+" | "-") <expression> ]
+<term> = <signedFactor> [ ("*" | "/") <term> ]
+<signedFactor> = [ "-" ] <unsignedFactor>
+<unsignedFactor> = "(" <boolExpression> ")" | <anyLiteral> | <var> | <funcCall>
+
+<return> = "return" <boolExpression>
+
+<funcParamList> = <boolExpression> { "," <boolExpression> }
+<funcCall> = <IDENTIFIER> "(" [ <funcParamList> ] ")"
+
+<compoundStatement> = <statement> | <ifStatement> | <whileStatement>
+<block> = "{" [ <compoundStatement> ] "}"
+
+<funcParamDecl> = <IDENTIFIER> ":" <anyType>
+<funcParamDeclList> = <funcParamDecl> { "," <funcParamDecl> }
+<varDecl> = "var" <funcParamDeclList> ";"
+<funcBlock> = "{" [ <varDecl> ] [ <compoundStatement> ] "}"
+<funcDecl> = "function" <IDENTIFIER> "(" <funcParamDeclList> ")" ":" <returnType> <funcBlock>
+
+<ifStatement> = "if" "(" <boolExpression> ")" <block> [ "else" <block> ]
+<whileStatement> = "while" "(" <boolExpression> ")" <block>
+```
