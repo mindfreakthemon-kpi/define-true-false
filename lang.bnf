@@ -21,15 +21,15 @@
               <expressionStatement>
 
 <var> = <IDENTIFIER> [ "[" <expression> "]" ]
-<boolExpression> = <boolTerm> [ ("||" | "^^") <boolExpression> ]
-<boolTerm> = <boolNotFactor> [ "&&" <boolTerm> ]
-<boolNotFactor> = [ "!" ] <boolNotFactor>
+<boolExpression> = <boolTerm> { "||" <boolTerm> }
+<boolTerm> = <boolNotFactor> { "&&" <boolNotFactor> }
+<boolNotFactor> = [ "!" ] <boolRelation>
 <boolRelation> = <binExpression> [ ("==" | "!=" | "<=" | ">=" | "<" | ">") <binExpression> ]
-<binExpression> = <binTerm> [ ("|" | "^") <binExpression> ]
-<binTerm> = <binNotFactor> [ "&" <binTerm> ]
+<binExpression> = <binTerm> { ("|" | "^") <binTerm> }
+<binTerm> = <binNotFactor> { "&" <binNotFactor> }
 <binNotFactor> = [ "~" ] <expression>
-<expression> = <term> [ ("+" | "-") <expression> ]
-<term> = <signedFactor> [ ("*" | "/") <term> ]
+<expression> = <term> { ("+" | "-") <term> }
+<term> = <signedFactor> { ("*" | "/") <signedFactor> }
 <signedFactor> = [ "-" ] <unsignedFactor>
 <unsignedFactor> = "(" <boolExpression> ")" | <anyLiteral> | <var> | <funcCall>
 
