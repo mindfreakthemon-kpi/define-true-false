@@ -15,6 +15,7 @@
 #include <Lexer.h>
 using namespace std;
 using namespace token;
+using namespace lexer;
 /*
  * 
  */
@@ -37,7 +38,7 @@ int main(int argc, char** argv) {
 		tok = lexer.scan();
 		if(tok != NULL){
 
-			cout << "Token:" << tok->getKind() << " with position:" << tok->_loc.toString() << endl;
+			cout << "Token:" << tok->getKind() << " with position:" << tok->getLocation().toString() << endl;
 		}
 	}while((tok == NULL) || tok->getKind() != LT);
 	
