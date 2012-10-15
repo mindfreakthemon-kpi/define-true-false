@@ -1,49 +1,48 @@
-```bnf
 <program> = { <funcDecl> }
 
-;<IDENTIFIER> = /[a-z][a-z0-9_]*/i
+<IDENTIFIER> = /[a-z][a-z0-9_]*/i
 
-;<intLiteral> = /0|[1-9][0-9]+/
-;<doubleLiteral> = <intLiteral> "." /[0-9]*[1-9]/
-;<stringLiteral> = /"(?:[^"\\]|\\.)*"/s
+<intLiteral> = /0|[1-9][0-9]+/
+<doubleLiteral> = <intLiteral> "." /[0-9]*[1-9]/
+<stringLiteral> = /"(?:[^"\\]|\\.)*"/s
 <boolLiteral> = "true" | "false"
 <anyLiteral> = <intLiteral> | <doubleLiteral> | <stringLiteral> | <boolLiteral>
 
 <scalarType> = "int" | "double" | "bool"
-<anyType> = <scalarType> | <scalarType> "[]" | "string"
-<returnType> = <anyType> | "void"
+<varType> = <scalarType> | <scalarType> "[]" | "string"
+<returnType> = <varType> | "void"
 
-<statement> = <statement_body> ";"
-<statement_body> = <return> | <assignment> | <boolExpression>
+<expressionStatement> = <boolExpression> ";"
+<assignmentStatement> = <boolExpression> "=" <boolExpression> ";"
+<returnStatement> = "return" <boolExpression> ";"
 
-<assignment> = <boolExpression> "=" <boolExpression>
+<statement> = <ifStatement> | <whileStatement> |
+              <returnStatement> | <assignmentStatement> | 
+              <expressionStatement>
+
 <var> = <IDENTIFIER> [ "[" <expression> "]" ]
-<boolExpression> = <boolTerm> [ ("||" | "^^") <boolExpression> ]
-<boolTerm> = <boolNotFactor> [ "&&" <boolTerm> ]
-<boolNotFactor> = [ "!" ] <boolNotFactor>
+<boolExpression> = <boolTerm> { "||" <boolTerm> }
+<boolTerm> = <boolNotFactor> { "&&" <boolNotFactor> }
+<boolNotFactor> = [ "!" ] <boolRelation>
 <boolRelation> = <binExpression> [ ("==" | "!=" | "<=" | ">=" | "<" | ">") <binExpression> ]
-<binExpression> = <binTerm> [ ("|" | "^") <binExpression> ]
-<binTerm> = <binNotFactor> [ "&" <binTerm> ]
+<binExpression> = <binTerm> { ("|" | "^") <binTerm> }
+<binTerm> = <binNotFactor> { "&" <binNotFactor> }
 <binNotFactor> = [ "~" ] <expression>
-<expression> = <term> [ ("+" | "-") <expression> ]
-<term> = <signedFactor> [ ("*" | "/") <term> ]
+<expression> = <term> { ("+" | "-") <term> }
+<term> = <signedFactor> { ("*" | "/") <signedFactor> }
 <signedFactor> = [ "-" ] <unsignedFactor>
 <unsignedFactor> = "(" <boolExpression> ")" | <anyLiteral> | <var> | <funcCall>
-
-<return> = "return" <boolExpression>
 
 <funcParamList> = <boolExpression> { "," <boolExpression> }
 <funcCall> = <IDENTIFIER> "(" [ <funcParamList> ] ")"
 
-<compoundStatement> = <statement> | <ifStatement> | <whileStatement>
-<block> = "{" [ <compoundStatement> ] "}"
+<block> = "{" { <statement> } "}"
 
-<funcParamDecl> = <IDENTIFIER> ":" <anyType>
+<funcParamDecl> = <IDENTIFIER> ":" <varType>
 <funcParamDeclList> = <funcParamDecl> { "," <funcParamDecl> }
 <varDecl> = "var" <funcParamDeclList> ";"
-<funcBlock> = "{" [ <varDecl> ] [ <compoundStatement> ] "}"
+<funcBlock> = "{" [ <varDecl> ] { <statement> } "}"
 <funcDecl> = "function" <IDENTIFIER> "(" <funcParamDeclList> ")" ":" <returnType> <funcBlock>
 
 <ifStatement> = "if" "(" <boolExpression> ")" <block> [ "else" <block> ]
 <whileStatement> = "while" "(" <boolExpression> ")" <block>
-```
