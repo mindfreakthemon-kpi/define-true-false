@@ -7,13 +7,12 @@ include_directories(
   ${gtest_SOURCE_DIR}/include
   ${dtf_SOURCE_DIR}/include)
 
-add_executable(test_duck
-    src/lexer_test.cc
-    src/lexer.cc)
+add_executable(dtf
+    src/test.cpp)
 
-set_target_properties(test_duck
+set_target_properties(dtf
     PROPERTIES
     COMPILE_FLAGS "-std=c++11")
 
-target_link_libraries(test_duck gtest gtest_main)
+target_link_libraries(dtf gtest gtest_main)
 

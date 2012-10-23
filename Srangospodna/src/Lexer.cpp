@@ -23,6 +23,13 @@ Lexer::Lexer(std::string file) {
 	charsDone = -1;
 }
 
+Lexer::Lexer(char[] str) {
+	file_buffer = str;
+	col = 0;
+	row = 1;
+	charsDone = -1;
+}
+
 Token* Lexer::scan() {
 	//for multi symbol tokens
 	std::string nts;

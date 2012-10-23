@@ -17,6 +17,7 @@ namespace lexer {
 class Lexer {
 public:
 	Lexer(std::string file);
+  Lexer(char[]);
 	token::Token* scan();
 	~Lexer() {
 		delete file_buffer;

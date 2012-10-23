@@ -1,7 +1,12 @@
 #include <cstddef>
 #include <vector>
 #include "gtest/gtest.h"
-#include "lexer.h"
+
+#include <Token.h>
+#include <Lexer.h>
+using namespace std;
+using namespace token;
+using namespace lexer;
 
 using std::vector;
 
@@ -13,83 +18,50 @@ namespace {
 	  return N;
 	}
 
-	vector<token> tokenize(const char *source)
+	vector<Token> tokenize(const char *source)
 	{
-	  lexer l(source);
-	  vector<token> result;
-	  while(l.next_is_not(token_kind::end_of_file))
-	  {
-	    result.push_back(l.look());
-	    l.consume_token();
-	  }
+	  Lexer l(source);
+	  vector<Token> result;
+
+	  //while(l.next_is_not(TokenKind::LT))
+	  //{
+	  //  result.push_back(l.look());
+	  //  l.consume_token();
+	  //}
+
 	  return result;
 	}
 
-	::testing::AssertionResult tok_is(const token &tok,
-		                          token_kind kind)
+	::testing::AssertionResult tok_is(const Token &tok,
+		                          TokenKind kind)
 	{
-	  if(tok.get_kind() != kind)
+	  if(tok.getKind() != kind)
 	    return testing::AssertionFailure() << "Expected token kind " << kind
-	      << ", got " << tok.get_kind();
+	      << ", got " << tok.getKind();
 
 	  return testing::AssertionSuccess();
 	}
 
-	::testing::AssertionResult tok_is(const token &tok,
-		                          token_kind kind,
+	::testing::AssertionResult tok_is(const Token &tok,
+		                          TokenKind kind,
 		                          unsigned line,
 		                          unsigned column)
 	{
-	  if(tok.get_kind() != kind)
+	  if(tok.getKind() != kind)
 	    return testing::AssertionFailure() << "Expected token kind " << kind
-	      << ", got " << tok.get_kind();
+	      << ", got " << tok.getKind();
 
-	  if(tok.get_location().get_line() != line)
+	  if(tok.getLocation().getLine() != line)
 	    return testing::AssertionFailure() << "Expected line " << line
-	      << ", got " << tok.get_location().get_line();
+	      << ", got " << tok.getLocation().getLine();
 
-	  if(tok.get_location().get_column() != column)
+	  if(tok.getLocation().getColumn() != column)
 	    return testing::AssertionFailure() << "Expected column " << column
-	      << ", got " << tok.get_location().get_column();
+	      << ", got " << tok.getLocation().getColumn();
 
 	  return testing::AssertionSuccess();
 	}
 
 } // unnamed namespace
 
-TEST(Lexer, Comment)
-{
-  const char *sources[] = {
-    "//", "// ", "// aaa"
-  };
-  for(size_t i = 0, e = array_lengthof(sources); i != e; i++) {
-    vector<token> toks = tokenize(sources[i]);
-    ASSERT_EQ(0U, toks.size());
-  }
-}
-
-TEST(Lexer, TokAllParens)
-{
-  const char *source = "()[]{}";
-  vector<token> toks = tokenize(source);
-  ASSERT_EQ(6U, toks.size());
-  ASSERT_TRUE(tok_is(toks[0], token_kind::lparen,   1, 1));
-  ASSERT_TRUE(tok_is(toks[1], token_kind::rparen,   1, 2));
-  ASSERT_TRUE(tok_is(toks[2], token_kind::lbracket, 1, 3));
-  ASSERT_TRUE(tok_is(toks[3], token_kind::rbracket, 1, 4));
-  ASSERT_TRUE(tok_is(toks[4], token_kind::lbrace,   1, 5));
-  ASSERT_TRUE(tok_is(toks[5], token_kind::rbrace,   1, 6));
-}
-
-TEST(Lexer, TokSlash)
-{
-  const char *sources[] = {
-    "/", "  /", " / ", "/\n", "// aaa\n/", "/// aaa\n/"
-  };
-  for(size_t i = 0, e = array_lengthof(sources); i != e; i++) {
-    vector<token> toks = tokenize(sources[i]);
-    ASSERT_EQ(1U, toks.size());
-    ASSERT_TRUE(tok_is(toks[0], token_kind::slash));
-  }
-}
 

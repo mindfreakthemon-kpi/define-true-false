@@ -82,6 +82,12 @@ namespace token {
 		int col;
 		SourceLocation(int row,int col):row(row),col(col){}
 		SourceLocation(){row = 0; col = 0;}
+		unsigned getLine() const {
+		  return row;
+		}
+		unsigned getColumn() const {
+		  return col;
+		}
 		std::string toString(){
 			std::stringstream ss;
 			ss << "row:" << row << ";col:" << col;
