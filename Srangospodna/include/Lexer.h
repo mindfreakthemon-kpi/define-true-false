@@ -22,9 +22,6 @@ public:
 		delete file_buffer;
 	}
 private:
-	int getNextChar(bool doIncrement = false);
-	//founds c after current char, if allowWhitespace = false, c must be next char
-	bool foundChar(char c, bool allowWhitespace = true);
 	int file_length;
 	char * file_buffer;
 	ifstream file_is;

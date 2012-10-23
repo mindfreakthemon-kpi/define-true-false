@@ -51,15 +51,13 @@ namespace token {
 		DOR,//'||'
 
 		ID,
-
-		INT,
-		DOUBLE,
-		STRING,
-		BOOL,
-		VOID,
-
 		FUNCTION,
 		WHILE,
+		
+		INT,
+		DOUBLE,
+		BOOL,
+		STRING,
 
 		OPERATOR,
 		COMMENT,
@@ -90,19 +88,33 @@ namespace token {
 	};
 	class Token {
 	public:
+		/**
+		Defautl constructor
+		**/
 		Token(int kind, SourceLocation loc):
 			_kind(kind),_loc(loc),_id(""),_string_data(""),
 			_int_data(0),_double_data(0),_data_type(NONE){}
-		//constructor for STRING and ID tokens
+		/**
+		For STRING and ID
+		**/
 		Token(int kind, SourceLocation loc,std::string string_data):
 			_kind(kind),_loc(loc),_id(string_data),_string_data(string_data),
 			_int_data(0),_double_data(0),_data_type(NONE){}
+		/**
+		For INT,BOOL(int_data == 0 == false)
+		**/
 		Token(int kind, SourceLocation loc,int int_data):
 			_kind(kind),_loc(loc),_id(""),_string_data(""),
 			_int_data(int_data),_double_data(0),_data_type(NONE){}
+		/**
+		For DOUBLE
+		**/
 		Token(int kind, SourceLocation loc,double double_data):
 			_kind(kind),_loc(loc),_id(""),_string_data(""),
 			_int_data(0),_double_data(double_data),_data_type(NONE){}
+		/**
+		For TYPE_XXX(SCALAR,ARRAY):TYPE_XXX
+		**/
 		Token(int kind, SourceLocation loc,DataType data_type):
 			_kind(kind),_loc(loc),_id(""),_string_data(""),
 			_int_data(0),_double_data(0),_data_type(data_type){}
