@@ -31,33 +31,6 @@ private:
 	int col;
 	int row;
 	int charsDone;
-	static const int _EOF;
-	static const int _ENDL;
-};
-class LexerDictionary {
-public:
-	static LexerDictionary & getInstance();
-	bool findKeyword(string word);
-	bool findOperator(string word);
-	bool findType(string word);
-	bool isValidIdChar(int c) {
-		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-				|| (c >= '0' && c <= '9'))
-			return true;
-		return false;
-	}
-	int getMinLength() {
-		return 2;
-	}
-	int getMaxLength() {
-		return 8;
-	}
-private:
-	LexerDictionary();
-	vector<string> keywords;
-	vector<string> types;
-	vector<string> operators;
-	static LexerDictionary * instance;
 };
 }
 #endif	/* LEXER_H */

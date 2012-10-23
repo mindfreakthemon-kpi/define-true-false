@@ -34,17 +34,19 @@ namespace token {
 		MINUS,//'-'
 		MULT,//'*'
 		DIVIDE,//'/'
-		CARET,//'^'
-		EQUALS,//'='
 
-		DEQUALS,//'=='
+		
+
+		
 
 		DOUBLE_QUOTE,//'"'
 		QUOTE,//'\''
 
+		CARET,//'^'
+		EQUALS,//'='
+		DEQUALS,//'=='
 		AND,//'&'
 		OR,//'|'
-
 		DAND,//'&&'
 		DOR,//'||'
 
@@ -65,16 +67,15 @@ namespace token {
 		TYPE_SCALAR,
 		TYPE_ARRAY,
 
-		FT,//first token of file, root token
 		LT //last token of file
 	};
 	enum DataType {
 		NONE = 0,
-		DINT,
-		DDOUBLE,
-		DSTRING,
-		DBOOL,
-		DVOID
+		TYPE_INT,
+		TYPE_DOUBLE,
+		TYPE_STRING,
+		TYPE_BOOL,
+		TYPE_VOID
 	};
 	struct SourceLocation {
 		int row;
@@ -90,21 +91,21 @@ namespace token {
 	class Token {
 	public:
 		Token(int kind, SourceLocation loc):
-			_kind(kind),_loc(loc),id(""),_string_data(""),
-			_int_data(0),_double_data(0),parent(NULL),_data_type(NONE){}
+			_kind(kind),_loc(loc),_id(""),_string_data(""),
+			_int_data(0),_double_data(0),_data_type(NONE){}
 		//constructor for STRING and ID tokens
 		Token(int kind, SourceLocation loc,std::string string_data):
-			_kind(kind),_loc(loc),id(string_data),_string_data(string_data),
-			_int_data(0),_double_data(0),parent(NULL),_data_type(NONE){}
+			_kind(kind),_loc(loc),_id(string_data),_string_data(string_data),
+			_int_data(0),_double_data(0),_data_type(NONE){}
 		Token(int kind, SourceLocation loc,int int_data):
-			_kind(kind),_loc(loc),id(""),_string_data(""),
-			_int_data(int_data),_double_data(0),parent(NULL),_data_type(NONE){}
+			_kind(kind),_loc(loc),_id(""),_string_data(""),
+			_int_data(int_data),_double_data(0),_data_type(NONE){}
 		Token(int kind, SourceLocation loc,double double_data):
-			_kind(kind),_loc(loc),id(""),_string_data(""),
-			_int_data(0),_double_data(double_data),parent(NULL),_data_type(NONE){}
+			_kind(kind),_loc(loc),_id(""),_string_data(""),
+			_int_data(0),_double_data(double_data),_data_type(NONE){}
 		Token(int kind, SourceLocation loc,DataType data_type):
-			_kind(kind),_loc(loc),id(""),_string_data(""),
-			_int_data(0),_double_data(0),parent(NULL),_data_type(data_type){}
+			_kind(kind),_loc(loc),_id(""),_string_data(""),
+			_int_data(0),_double_data(0),_data_type(data_type){}
 		int getKind() {
 			return _kind;
 		}
@@ -117,15 +118,6 @@ namespace token {
 		double getDoubleData(){
 			return _double_data;
 		}
-		std::vector<Token*> & getLeafs(){
-			return leafs;
-		}
-		Token* getParent(){
-			return parent;
-		}
-		void setParent(Token* parent){
-			this->parent = parent;
-		}
 		SourceLocation & getLocation(){
 			return _loc;
 		}
@@ -135,13 +127,11 @@ namespace token {
 		int _kind;
 		SourceLocation _loc;
 		//id for ID tokens
-		std::string id;
+		std::string _id;
 		//data for tokens with some data
 		std::string _string_data;
 		int _int_data;
 		double _double_data;
-		std::vector<Token*> leafs;
-		Token* parent;
 		DataType _data_type;
 	};
 }

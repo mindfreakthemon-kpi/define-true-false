@@ -10,8 +10,6 @@
 #include "Lexer.h"
 using namespace token;
 using namespace lexer;
-const int Lexer::_EOF = -1050;
-const int Lexer::_ENDL = -5010;
 Lexer::Lexer(std::string file) {
 	file_is.open(file.c_str(), ios::binary);
 	file_is.seekg(0, ios::end);
@@ -20,7 +18,7 @@ Lexer::Lexer(std::string file) {
 	file_buffer = new char[file_length];
 	file_is.read(file_buffer, file_length);
 	file_is.close();
-	col = 1;
+	col = 0;
 	row = 1;
 	charsDone = -1;
 }
@@ -30,127 +28,88 @@ Token* Lexer::scan() {
 	std::string nts;
 
 	//read character
-	int c = getNextChar();
+	if(charsDone >= file_length)
+	{
+		return new Token(LT, SourceLocation(row, col+1));
+	}
+	else
+	{
+		charsDone++;
+		col++;
+		//for DOS line endings
+		if (file_buffer[charsDone] == '\r' && file_buffer[charsDone + 1] == '\n') {
+			row++;
+			col = 1;
+			charsDone = charsDone + 2;
+		}
+		//for *nix line endings
+		if (file_buffer[charsDone] == '\n') {
+			row++;
+			col = 1;
+			charsDone++;
+		}
+	}
+
+	int c = file_buffer[charsDone];
 
 	//some serious stuff
+	SourceLocation sl = SourceLocation(row, col);
 	switch (c) {
 	case '{':
-		return new Token(LF_CR_BRACKET, SourceLocation(row, col));
+		return new Token(LF_CR_BRACKET, sl);
 	case '}':
-		return new Token(RT_CR_BRACKET, SourceLocation(row, col));
+		return new Token(RT_CR_BRACKET, sl);
 	case '(':
-		return new Token(LF_PARENTHESES, SourceLocation(row, col));
+		return new Token(LF_PARENTHESES, sl);
 	case ')':
-		return new Token(RT_PARENTHESES, SourceLocation(row, col));
+		return new Token(RT_PARENTHESES, sl);
 	case '[':
-		return new Token(LF_SQ_BRACKET, SourceLocation(row, col));
+		return new Token(LF_SQ_BRACKET, sl);
 	case ']':
-		return new Token(RT_SQ_BRACKET, SourceLocation(row, col));
+		return new Token(RT_SQ_BRACKET, sl);
 	case ';':
-		return new Token(SEMICOLON, SourceLocation(row, col));
+		return new Token(SEMICOLON, sl);
 	case ':':
-		return new Token(COLON, SourceLocation(row, col));
+		return new Token(COLON, sl);
 	case ',':
-		return new Token(COMMA, SourceLocation(row, col));
+		return new Token(COMMA, sl);
 	//here goes operators
 	case '<':
-		return new Token(LESS, SourceLocation(row, col));
+		return new Token(LESS, sl);
 	case '>':
-		return new Token(MORE, SourceLocation(row, col));
+		return new Token(MORE, sl);
 	case '+':
-		return new Token(PLUS, SourceLocation(row, col));
+		return new Token(PLUS, sl);
 	case '-':
-		return new Token(MINUS, SourceLocation(row, col));
+		return new Token(MINUS, sl);
 	case '*':
-		return new Token(MULT, SourceLocation(row, col));
+		return new Token(MULT, sl);
 	case '/':
-		return new Token(DIVIDE, SourceLocation(row, col));
+		return new Token(DIVIDE, sl);
 	case '^':
-		return new Token(CARET, SourceLocation(row, col));
+		return new Token(CARET, sl);
 	case '=':
 		if(file_buffer[charsDone+1] == '='){
 			getNextChar();
-			return new Token(DEQUALS, SourceLocation(row, col));
+			return new Token(DEQUALS, sl);
 		}
 		else
-			return new Token(EQUALS, SourceLocation(row, col));
+			return new Token(EQUALS, sl);
 	case '&':
-		return new Token(AND, SourceLocation(row, col));
+		return new Token(AND, sl);
 	case '|':
-		return new Token(OR, SourceLocation(row, col));
+		return new Token(OR, sl);
 		//STRING
 	case '"': {
 		SourceLocation pos(row, col);
-		do {
-			c = getNextChar();
-			if (c == '\\') {
-				c = getNextChar();
-				nts.push_back(c);
-				//TODO process escaped symbols
-			}
-			if (c != '"')
-				nts.push_back(c);
-		} while (c != '"');
+		while (file_buffer[++charsDone] != '"') {
+			nts.push_back(file_buffer[charsDone]);
+		};
+		col = col + nts.length();
 		return new Token(STRING, pos, nts);
 	}
-	case Lexer::_EOF:
-		return new Token(LT, SourceLocation(row, col));
+		
 	default: {
-		//here we will try to get keyword or id; tree must be created on higher level
-		LexerDictionary & dic = LexerDictionary::getInstance();
-		//return new Token(FUNCTION,SourceLocation(row, col));
-		//return new Token(ID,SourceLocation(row, col),nts);
-		bool done = false;
-		while (!done) {
-			nts.push_back(c);
-			c = getNextChar(false);
-			done = !dic.isValidIdChar(c);
-			if (!done)
-				c = getNextChar();
-		}
-		//here we have ID in nts, BUT it can be also keyword or type
-		//keywords.push_back("function");
-		//keywords.push_back("while");
-		if(dic.findType(nts)){
-//			DINT,
-//			DDOUBLE,
-//			DSTRING,
-//			DVOID
-			if(file_buffer[charsDone+1] == '[' && file_buffer[charsDone+2] == ']')
-			{
-				if(nts.compare("int"))
-					return new Token(TYPE_SCALAR,SourceLocation(row, col),DINT);
-				if(nts.compare("double"))
-					return new Token(TYPE_SCALAR,SourceLocation(row, col),DDOUBLE);
-				if(nts.compare("string"))
-					return new Token(TYPE_SCALAR,SourceLocation(row, col),DSTRING);
-				if(nts.compare("bool"))
-					return new Token(TYPE_SCALAR,SourceLocation(row, col),DBOOL);
-				if(nts.compare("void"))
-					return new Token(TYPE_SCALAR,SourceLocation(row, col),DVOID);
-			}
-			else
-			{
-				if(nts.compare("int"))
-					return new Token(TYPE_ARRAY,SourceLocation(row, col),DINT);
-				if(nts.compare("double"))
-					return new Token(TYPE_ARRAY,SourceLocation(row, col),DDOUBLE);
-				if(nts.compare("string"))
-					return new Token(TYPE_ARRAY,SourceLocation(row, col),DSTRING);
-				if(nts.compare("bool"))
-					return new Token(TYPE_ARRAY,SourceLocation(row, col),DBOOL);
-				if(nts.compare("void"))
-					return new Token(TYPE_ARRAY,SourceLocation(row, col),DVOID);
-			}
-
-		}
-		if (dic.findKeyword(nts)){
-			if(nts.compare("function"))
-				return new Token(FUNCTION,SourceLocation(row, col));
-			if(nts.compare("while"))
-				return new Token(WHILE,SourceLocation(row, col));
-		}
-		return new Token(ID,SourceLocation(row, col),nts);
 		break;
 	}
 	}
@@ -159,7 +118,6 @@ Token* Lexer::scan() {
 
 int Lexer::getNextChar(bool doIncrement) {
 	if (charsDone >= file_length)
-		return Lexer::_EOF;
 	if (doIncrement) {
 		charsDone++;
 		col++;
@@ -169,13 +127,11 @@ int Lexer::getNextChar(bool doIncrement) {
 			row++;
 			col = 0;
 			charsDone++;
-			return Lexer::_ENDL;
 		}
 		//for *nix line endings
 		if (file_buffer[charsDone] == '\n') {
 			row++;
 			col = 0;
-			return Lexer::_ENDL;
 		}
 	} else {
 		return file_buffer[charsDone + 1];//return next char, but not increment charsDone & col & row
@@ -198,69 +154,4 @@ bool Lexer::foundChar(char c, bool allowWhitespace) {
 		i++;
 	}
 	return false;
-}
-
-LexerDictionary * lexer::LexerDictionary::instance = NULL;
-LexerDictionary& LexerDictionary::getInstance() {
-	if(lexer::LexerDictionary::instance == NULL){
-		lexer::LexerDictionary::instance = new LexerDictionary();
-	}
-	return *LexerDictionary::instance;
-}
-
-bool LexerDictionary::findKeyword(string word) {
-	std::vector<string>::iterator itr;
-	for ( itr = keywords.begin(); itr < keywords.end(); ++itr )
-	{
-		if((*itr).compare(word) == 0)
-			return true;
-	}
-	return false;
-}
-
-bool LexerDictionary::findOperator(string word) {
-	std::vector<string>::iterator itr;
-	for ( itr = operators.begin(); itr < operators.end(); ++itr )
-	{
-		if((*itr).compare(word) == 0)
-			return true;
-	}
-	return false;
-}
-
-bool LexerDictionary::findType(string word) {
-	std::vector<string>::iterator itr;
-	for ( itr = types.begin(); itr < types.end(); ++itr )
-	{
-		if((*itr).compare(word) == 0)
-			return true;
-	}
-	return false;
-}
-
-LexerDictionary::LexerDictionary() {
-	keywords.push_back("function");
-	keywords.push_back("while");
-
-	types.push_back("int");
-	types.push_back("double");
-	types.push_back("string");
-	types.push_back("bool");
-	types.push_back("void");
-
-	operators.push_back("=");
-	operators.push_back("==");
-	operators.push_back("-");
-	operators.push_back("+");
-	operators.push_back("-");
-	operators.push_back("/");
-	operators.push_back(">");
-	operators.push_back("<");
-	operators.push_back("!=");
-	operators.push_back(">=");
-	operators.push_back("<=");
-	operators.push_back("&");
-	operators.push_back("&&");
-	operators.push_back("|");
-	operators.push_back("||");
 }
