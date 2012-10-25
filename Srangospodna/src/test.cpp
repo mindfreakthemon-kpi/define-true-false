@@ -16,7 +16,7 @@ namespace {
 
 	vector<Token> tokenize(string source)
 	{
-	  Lexer l(source, INLINE_STRING);
+	  Lexer l(source);
           Token* t = NULL;
 	  vector<Token> result;
 
