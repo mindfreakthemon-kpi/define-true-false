@@ -20,7 +20,7 @@ public:
 	Lexer(std::string file, const int options = 0);
 	token::Token* scan();
 	~Lexer() {
-		delete file_buffer;
+//		delete file_buffer;
 	}
 private:
 	int file_length;

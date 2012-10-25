@@ -79,7 +79,7 @@ namespace token {
 		int row;
 		int col;
 		SourceLocation(int row,int col):row(row),col(col){}
-		SourceLocation(){row = 0; col = 0;}
+		SourceLocation():row(0),col(0){}
 		unsigned getLine() const {
 		  return row;
 		}
