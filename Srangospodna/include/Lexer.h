@@ -20,7 +20,7 @@ public:
 	~Lexer() {}
 private:
 	int file_length;
-	char * file_buffer;
+	string file_buffer;
 	ifstream file_is;
 	int col;
 	int row;

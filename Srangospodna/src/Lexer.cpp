@@ -12,12 +12,7 @@
 using namespace token;
 using namespace lexer;
 
-Lexer::Lexer(std::string source): col(0), row(1), charsDone(-1) {
-  file_buffer = new char[source.size()];
-  for(int i = 0; i < source.size(); i++) {
-    file_buffer[i] = source.c_str()[i];
-  }
-
+Lexer::Lexer(std::string source): col(0), row(1), charsDone(-1), file_buffer(source) {
   file_length = source.size();
 }
 
