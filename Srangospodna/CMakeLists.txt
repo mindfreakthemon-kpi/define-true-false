@@ -9,13 +9,11 @@ include_directories(
 
 add_executable(dtf
     src/main.cpp
-		src/Lexer.cpp
-		src/Token.cpp)
+		src/Lexer.cpp)
 
 add_executable(dtf_test
     src/test.cpp
-		src/Lexer.cpp
-		src/Token.cpp)
+		src/Lexer.cpp)
 
 set_target_properties(dtf
     PROPERTIES

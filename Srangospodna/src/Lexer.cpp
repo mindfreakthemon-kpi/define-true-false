@@ -6,13 +6,14 @@
  */
 
 #include <stddef.h>
-
+#include <iostream>
 #include "Lexer.h"
 #include <ctype.h>
 using namespace token;
 using namespace lexer;
+
 Lexer::Lexer(std::string file, const int options) {
-  if(options & INLINE_STRING == 0) {
+  if((options & INLINE_STRING) == 0) {
  	  file_is.open(file.c_str(), ios::binary);
 	  file_is.seekg(0, ios::end);
 	  file_length = file_is.tellg();
