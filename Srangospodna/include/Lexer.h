@@ -14,17 +14,17 @@
 #include <vector>
 using namespace std;
 namespace lexer {
+const int INLINE_STRING = 1;
 class Lexer {
 public:
-	Lexer(std::string file);
-  Lexer(char[]);
+	Lexer(std::string file, const int options = 0);
 	token::Token* scan();
 	~Lexer() {
 		delete file_buffer;
 	}
 private:
 	int file_length;
-	char * file_buffer;
+	const char * file_buffer;
 	ifstream file_is;
 	int col;
 	int row;

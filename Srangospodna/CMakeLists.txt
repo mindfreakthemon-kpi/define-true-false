@@ -8,11 +8,23 @@ include_directories(
   ${dtf_SOURCE_DIR}/include)
 
 add_executable(dtf
-    src/test.cpp)
+    src/main.cpp
+		src/Lexer.cpp
+		src/Token.cpp)
+
+add_executable(dtf_test
+    src/test.cpp
+		src/Lexer.cpp
+		src/Token.cpp)
 
 set_target_properties(dtf
     PROPERTIES
     COMPILE_FLAGS "-std=c++11")
 
+set_target_properties(dtf_test
+    PROPERTIES
+    COMPILE_FLAGS "-std=c++11")
+
 target_link_libraries(dtf gtest gtest_main)
+target_link_libraries(dtf_test gtest gtest_main)
 

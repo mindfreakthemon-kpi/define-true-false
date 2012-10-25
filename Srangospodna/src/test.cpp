@@ -2,13 +2,10 @@
 #include <vector>
 #include "gtest/gtest.h"
 
-#include <Token.h>
 #include <Lexer.h>
 using namespace std;
 using namespace token;
 using namespace lexer;
-
-using std::vector;
 
 namespace {
 
@@ -18,21 +15,22 @@ namespace {
 	  return N;
 	}
 
-	vector<Token> tokenize(const char *source)
+	vector<Token> tokenize(const char *str)
 	{
-	  Lexer l(source);
+		string source(str);
+	  Lexer l(source, INLINE_STRING);
+    Token* t = NULL;
 	  vector<Token> result;
 
-	  //while(l.next_is_not(TokenKind::LT))
-	  //{
-	  //  result.push_back(l.look());
-	  //  l.consume_token();
-	  //}
+	  while((t = l.scan())->getKind() != TokenKind::LT)
+	  {
+	    result.push_back(*t);
+	  }
 
 	  return result;
 	}
 
-	::testing::AssertionResult tok_is(const Token &tok,
+	::testing::AssertionResult tok_is(Token &tok,
 		                          TokenKind kind)
 	{
 	  if(tok.getKind() != kind)
@@ -42,7 +40,7 @@ namespace {
 	  return testing::AssertionSuccess();
 	}
 
-	::testing::AssertionResult tok_is(const Token &tok,
+	::testing::AssertionResult tok_is(Token &tok,
 		                          TokenKind kind,
 		                          unsigned line,
 		                          unsigned column)

@@ -11,22 +11,22 @@
 #include <ctype.h>
 using namespace token;
 using namespace lexer;
-Lexer::Lexer(std::string file) {
-	file_is.open(file.c_str(), ios::binary);
-	file_is.seekg(0, ios::end);
-	file_length = file_is.tellg();
-	file_is.seekg(0, ios::beg);
-	file_buffer = new char[file_length];
-	file_is.read(file_buffer, file_length);
-	file_is.close();
-	col = 0;
-	row = 1;
-	charsDone = -1;
-}
+Lexer::Lexer(std::string file, const int options) {
+  if(options & INLINE_STRING == 0) {
+ 	  file_is.open(file.c_str(), ios::binary);
+	  file_is.seekg(0, ios::end);
+	  file_length = file_is.tellg();
+	  file_is.seekg(0, ios::beg);
+	  char * buffer = new char[file_length];
+	  file_is.read(buffer, file_length);
+	  file_is.close();
 
-Lexer::Lexer(char[] str) {
-	file_buffer = str;
-	col = 0;
+		file_buffer = buffer;
+  } else {
+    file_buffer = file.c_str();
+	}
+
+  col = 0;
 	row = 1;
 	charsDone = -1;
 }
