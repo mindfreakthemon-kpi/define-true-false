@@ -29,7 +29,7 @@ namespace {
 	  return result;
 	}
 
-	::testing::AssertionResult tok_is(Token &tok,
+	::testing::AssertionResult tok_is(const Token &tok,
 		                          TokenKind kind)
 	{
 	  if(tok.getKind() != kind)
@@ -39,7 +39,7 @@ namespace {
 	  return testing::AssertionSuccess();
 	}
 
-	::testing::AssertionResult tok_is(Token &tok,
+	::testing::AssertionResult tok_is(const Token &tok,
 		                          TokenKind kind,
 		                          unsigned line,
 		                          unsigned column)

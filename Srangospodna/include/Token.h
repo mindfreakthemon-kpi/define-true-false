@@ -124,7 +124,7 @@ namespace token {
 		Token(int kind, SourceLocation loc,DataType data_type):
 			_kind(kind),_loc(loc),_id(""),_string_data(""),
 			_int_data(0),_double_data(0),_data_type(data_type){}
-		int getKind() {
+		unsigned getKind() const {
 			return _kind;
 		}
 		std::string getStringData(){
@@ -136,7 +136,7 @@ namespace token {
 		double getDoubleData(){
 			return _double_data;
 		}
-		SourceLocation & getLocation(){
+		SourceLocation getLocation() const {
 			return _loc;
 		}
 		~Token() {
