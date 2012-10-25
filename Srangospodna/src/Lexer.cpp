@@ -8,6 +8,7 @@
 #include <stddef.h>
 
 #include "Lexer.h"
+#include <ctype.h>
 using namespace token;
 using namespace lexer;
 Lexer::Lexer(std::string file) {
@@ -33,16 +34,17 @@ Lexer::Lexer(char[] str) {
 Token* Lexer::scan() {
 	//for multi symbol tokens
 	std::string nts;
-
+	bool done = true;
+	int c;
 	//read character
-	if(charsDone >= file_length)
-	{
-		return new Token(LT, SourceLocation(row, col+1));
-	}
-	else
-	{
+	while(done){
 		charsDone++;
 		col++;
+		if(charsDone >= file_length)
+		{
+			//end of file
+			return new Token(LT, SourceLocation(row, col+1));
+		}
 		//for DOS line endings
 		if (file_buffer[charsDone] == '\r' && file_buffer[charsDone + 1] == '\n') {
 			row++;
@@ -55,10 +57,12 @@ Token* Lexer::scan() {
 			col = 1;
 			charsDone++;
 		}
+		c = file_buffer[charsDone];
+		//remove whitespace
+		if(c != ' ')
+			done = false;
 	}
-
-	int c = file_buffer[charsDone];
-
+	
 	//some serious stuff
 	SourceLocation sl = SourceLocation(row, col);
 	switch (c) {
@@ -97,7 +101,6 @@ Token* Lexer::scan() {
 		return new Token(CARET, sl);
 	case '=':
 		if(file_buffer[charsDone+1] == '='){
-			getNextChar();
 			return new Token(DEQUALS, sl);
 		}
 		else
@@ -117,48 +120,44 @@ Token* Lexer::scan() {
 	}
 		
 	default: {
+		while((charsDone < file_length) && (isalnum(file_buffer[charsDone]) != 0 || file_buffer[charsDone] == '_')){
+			nts.push_back(file_buffer[charsDone]);
+			charsDone++;
+			col++;
+		}
+		//warning, if no token founded this will cause inf loop
+		charsDone--;
+		col--;
+		//check if it keyword
+		if(nts.compare("function") == 0)
+		{
+			return new Token(FUNCTION,sl);
+		}
+		if(nts.compare("int") == 0)
+		{
+			return new Token(TYPE_SCALAR,sl,TYPE_INT);
+		}
+		if(nts.compare("double") == 0)
+		{
+			return new Token(TYPE_SCALAR,sl,TYPE_DOUBLE);
+		}
+		if(nts.compare("bool") == 0)
+		{
+			return new Token(TYPE_SCALAR,sl,TYPE_BOOL);
+		}
+		if(nts.compare("string") == 0)
+		{
+			return new Token(TYPE_SCALAR,sl,TYPE_STRING);
+		}
+		if(nts.compare("void") == 0)
+		{
+			return new Token(TYPE_SCALAR,sl,TYPE_VOID);
+		}
+		// TODO more keywords !!!
+		//non keyword(id)
+		return new Token(ID,sl,nts);
 		break;
 	}
 	}
 	return NULL;
-}
-
-int Lexer::getNextChar(bool doIncrement) {
-	if (charsDone >= file_length)
-	if (doIncrement) {
-		charsDone++;
-		col++;
-		//for DOS line endings
-		if (file_buffer[charsDone] == '\r'
-				&& file_buffer[charsDone + 1] == '\n') {
-			row++;
-			col = 0;
-			charsDone++;
-		}
-		//for *nix line endings
-		if (file_buffer[charsDone] == '\n') {
-			row++;
-			col = 0;
-		}
-	} else {
-		return file_buffer[charsDone + 1];//return next char, but not increment charsDone & col & row
-	}
-	return file_buffer[charsDone];
-}
-bool Lexer::foundChar(char c, bool allowWhitespace) {
-	bool done = false;
-	int i = 1;
-	while(!done){
-		if(allowWhitespace == true){
-			if(file_buffer[charsDone+i] == c)
-				return true;
-			else if(file_buffer[charsDone+i] != ' ')
-				return false;//char not found
-		}
-		else
-			if(file_buffer[charsDone+i] != c)
-				return false;
-		i++;
-	}
-	return false;
 }
