@@ -1,9 +1,9 @@
 /* 
- * File:   Lexer.cpp
- * Author: CrashTUA
- * 
- * Created on 27 Сентябрь 2012 г., 18:54
- */
+* File:   Lexer.cpp
+* Author: CrashTUA
+* 
+* Created on 27 Сентябрь 2012 г., 18:54
+*/
 
 #include <stddef.h>
 #include <iostream>
@@ -13,7 +13,7 @@ using namespace token;
 using namespace lexer;
 
 Lexer::Lexer(std::string source): col(0), row(1), charsDone(-1), file_buffer(source) {
-  file_length = source.size();
+	file_length = source.size();
 }
 
 Token* Lexer::scan() {
@@ -47,10 +47,33 @@ Token* Lexer::scan() {
 		if(c != ' ')
 			done = false;
 	}
-	
+
 	//some serious stuff
 	SourceLocation sl = SourceLocation(row, col);
 	switch (c) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		{
+			int value = 0;
+			while ((charsDone < file_length) && file_buffer[charsDone] >= '0' && file_buffer[charsDone] <= '9') {
+				value *= 10;
+				value += file_buffer[charsDone] - '0';
+				charsDone++;
+				col++;
+			}
+			//warning, if no token founded this will cause inf loop
+			charsDone--;
+			col--;
+			return new Token(INT,sl,value);
+		}
 	case '{':
 		return new Token(LF_CR_BRACKET, sl);
 	case '}':
@@ -69,7 +92,7 @@ Token* Lexer::scan() {
 		return new Token(COLON, sl);
 	case ',':
 		return new Token(COMMA, sl);
-	//here goes operators
+		//here goes operators
 	case '<':
 		return new Token(LESS, sl);
 	case '>':
@@ -102,8 +125,8 @@ Token* Lexer::scan() {
 		};
 		col = col + nts.length();
 		return new Token(STRING, pos, nts);
-	}
-		
+			  }
+
 	default: {
 		while((charsDone < file_length) && (isalnum(file_buffer[charsDone]) != 0 || file_buffer[charsDone] == '_')){
 			nts.push_back(file_buffer[charsDone]);
@@ -118,16 +141,51 @@ Token* Lexer::scan() {
 		{
 			return new Token(FUNCTION,sl);
 		}
+		if(nts.compare("var") == 0)
+		{
+			return new Token(VAR,sl);
+		}
+		if(nts.compare("if") == 0)
+		{
+			return new Token(IF,sl);
+		}
+		if(nts.compare("else") == 0)
+		{
+			return new Token(ELSE,sl);
+		}
+		if(nts.compare("while") == 0)
+		{
+			return new Token(WHILE,sl);
+		}
+		//types!!!!
 		if(nts.compare("int") == 0)
 		{
+			if((file_buffer[charsDone+1] == '[') && (file_buffer[charsDone+2] == ']'))
+			{
+				charsDone+=2;
+				col+=2;
+				return new Token(TYPE_ARRAY,sl,TYPE_INT);
+			}
 			return new Token(TYPE_SCALAR,sl,TYPE_INT);
 		}
 		if(nts.compare("double") == 0)
 		{
+			if((file_buffer[charsDone+1] == '[') && (file_buffer[charsDone+2] == ']'))
+			{
+				charsDone+=2;
+				col+=2;
+				return new Token(TYPE_ARRAY,sl,TYPE_DOUBLE);
+			}
 			return new Token(TYPE_SCALAR,sl,TYPE_DOUBLE);
 		}
 		if(nts.compare("bool") == 0)
 		{
+			if((file_buffer[charsDone+1] == '[') && (file_buffer[charsDone+2] == ']'))
+			{
+				charsDone+=2;
+				col+=2;
+				return new Token(TYPE_ARRAY,sl,TYPE_BOOL);
+			}
 			return new Token(TYPE_SCALAR,sl,TYPE_BOOL);
 		}
 		if(nts.compare("string") == 0)
@@ -138,11 +196,13 @@ Token* Lexer::scan() {
 		{
 			return new Token(TYPE_SCALAR,sl,TYPE_VOID);
 		}
+		//check if int
+
 		// TODO more keywords !!!
 		//non keyword(id)
 		return new Token(ID,sl,nts);
 		break;
-	}
+			 }
 	}
 	return NULL;
 }
