@@ -4,42 +4,31 @@
 #include <string>
 #include <cassert>
 #include <vector>
+
+#include <ostream>
 #include <cstdint>
 
 #include "Token.h"
 
 namespace parser {
 
-class program {
-public:
-	program(std::vector<funcDecl> funcDeclList) :
-		funcDeclList(std::move(funcDeclList)) {}
-	
-	const std::vector<funcDecl> & getFuncDeclList() {
-		return funcDeclList;
-	}
-private:
-	std::vector<funcDecl> funcDeclList;
-}
+class program;
+class funcDecl;
 
 class Parser
 {
 public:
 	//no autoconstructing
-	explicit parser(std::vector<Token> source) : 
+	explicit Parser(std::vector<Token> source) : 
 		source(std::move(source)),
 		next_index(0) {}
 		
-	program * parse() {
-		std::vector<funcDecl> r;
-		
-		return new program(r);
-	}
+	program * parse();
 
 private:
 	bool is_eof() const
 	{
-		return source[next_index] == token::LT;
+		return source[next_index].getKind() == token::LT;
 	}
 
 	Token look_token() const
@@ -54,7 +43,7 @@ private:
 	}
 
 	std::vector<Token> source;
-	size_t next_index;
+	int next_index;
 };
 
 }

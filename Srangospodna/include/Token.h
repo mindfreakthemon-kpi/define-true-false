@@ -8,6 +8,7 @@
 #ifndef TOKEN_H_
 #define TOKEN_H_
 #include <string>
+#include <sstream> 
 namespace token {
 enum TokenKind {
 	LF_PARENTHESES = 1, //'('
