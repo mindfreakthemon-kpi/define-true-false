@@ -9,43 +9,34 @@
 #include <cstdint>
 
 #include "Token.h"
+#include "Node.h"
 
-namespace parser {
-
-class program;
-class funcDecl;
-
-class Parser
-{
+class Parser {
 public:
 	//no autoconstructing
 	explicit Parser(std::vector<Token> source) : 
 		source(std::move(source)),
 		next_index(0) {}
 		
-	program * parse();
+	node::program * parse();
+	node::funcDecl * parseFuncDecl();
 
 private:
-	bool is_eof() const
-	{
+ 	bool is_eof() const {
 		return source[next_index].getKind() == token::LT;
 	}
 
-	Token look_token() const
-	{
+	Token look_token() const {
 		return source[next_index];
 	}
 	
-	void consume_token()
-	{
+	void consume_token() {
 		assert(!is_eof());
 		next_index++;
 	}
 
 	std::vector<Token> source;
-	int next_index;
+	size_t next_index;
 };
-
-}
 
 #endif /* PARSER_H */
