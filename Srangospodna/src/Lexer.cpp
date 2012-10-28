@@ -9,9 +9,9 @@
 #include <iostream>
 #include "Lexer.h"
 #include <ctype.h>
-using namespace token;
 using namespace lexer;
-
+using token::Token;
+using token::SourceLocation;
 Lexer::Lexer(std::string source) :
 		col(0), row(1), charsDone(-1), file_buffer(source) {
 	file_length = source.size();
@@ -28,7 +28,7 @@ Token* Lexer::scan() {
 		col++;
 		if (charsDone >= file_length) {
 			//end of file
-			return new Token(LT, SourceLocation(row, col + 1));
+			return new Token(token::LT, SourceLocation(row, col + 1));
 		}
 		//for DOS line endings
 		if (file_buffer[charsDone] == '\r'
@@ -73,50 +73,50 @@ Token* Lexer::scan() {
 		//warning, if no token founded this will cause inf loop
 		charsDone--;
 		col--;
-		return new Token(INT, sl, value);
+		return new Token(token::INT, sl, value);
 	}
 	case '{':
-		return new Token(LF_CR_BRACKET, sl);
+		return new Token(token::LF_CR_BRACKET, sl);
 	case '}':
-		return new Token(RT_CR_BRACKET, sl);
+		return new Token(token::RT_CR_BRACKET, sl);
 	case '(':
-		return new Token(LF_PARENTHESES, sl);
+		return new Token(token::LF_PARENTHESES, sl);
 	case ')':
-		return new Token(RT_PARENTHESES, sl);
+		return new Token(token::RT_PARENTHESES, sl);
 	case '[':
-		return new Token(LF_SQ_BRACKET, sl);
+		return new Token(token::LF_SQ_BRACKET, sl);
 	case ']':
-		return new Token(RT_SQ_BRACKET, sl);
+		return new Token(token::RT_SQ_BRACKET, sl);
 	case ';':
-		return new Token(SEMICOLON, sl);
+		return new Token(token::SEMICOLON, sl);
 	case ':':
-		return new Token(COLON, sl);
+		return new Token(token::COLON, sl);
 	case ',':
-		return new Token(COMMA, sl);
+		return new Token(token::COMMA, sl);
 		//here goes operators
 	case '<':
-		return new Token(LESS, sl);
+		return new Token(token::LESS, sl);
 	case '>':
-		return new Token(MORE, sl);
+		return new Token(token::MORE, sl);
 	case '+':
-		return new Token(PLUS, sl);
+		return new Token(token::PLUS, sl);
 	case '-':
-		return new Token(MINUS, sl);
+		return new Token(token::MINUS, sl);
 	case '*':
-		return new Token(MULT, sl);
+		return new Token(token::MULT, sl);
 	case '/':
-		return new Token(DIVIDE, sl);
+		return new Token(token::DIVIDE, sl);
 	case '^':
-		return new Token(CARET, sl);
+		return new Token(token::CARET, sl);
 	case '=':
 		if (file_buffer[charsDone + 1] == '=') {
-			return new Token(DEQUALS, sl);
+			return new Token(token::DEQUALS, sl);
 		} else
-			return new Token(EQUALS, sl);
+			return new Token(token::EQUALS, sl);
 	case '&':
-		return new Token(AND, sl);
+		return new Token(token::AND, sl);
 	case '|':
-		return new Token(OR, sl);
+		return new Token(token::OR, sl);
 		//STRING
 	case '"': {
 		SourceLocation pos(row, col);
@@ -124,7 +124,7 @@ Token* Lexer::scan() {
 			nts.push_back(file_buffer[charsDone]);
 		};
 		col = col + nts.length();
-		return new Token(STRING, pos, nts);
+		return new Token(token::STRING, pos, nts);
 	}
 
 	default: {
@@ -140,41 +140,41 @@ Token* Lexer::scan() {
 		col--;
 		//check if it keyword
 		if (nts.compare("function") == 0) {
-			return new Token(FUNCTION, sl);
+			return new Token(token::FUNCTION, sl);
 		}
 		if (nts.compare("var") == 0) {
-			return new Token(VAR, sl);
+			return new Token(token::VAR, sl);
 		}
 		if (nts.compare("if") == 0) {
-			return new Token(IF, sl);
+			return new Token(token::IF, sl);
 		}
 		if (nts.compare("else") == 0) {
-			return new Token(ELSE, sl);
+			return new Token(token::ELSE, sl);
 		}
 		if (nts.compare("while") == 0) {
-			return new Token(WHILE, sl);
+			return new Token(token::WHILE, sl);
 		}
 		//types!!!!
 		if (nts.compare("int") == 0) {
-			return new Token(TYPE, sl, TYPE_INT);
+			return new Token(token::TYPE, sl, token::TYPE_INT);
 		}
 		if (nts.compare("double") == 0) {
-			return new Token(TYPE, sl, TYPE_DOUBLE);
+			return new Token(token::TYPE, sl, token::TYPE_DOUBLE);
 		}
 		if (nts.compare("bool") == 0) {
-			return new Token(TYPE, sl, TYPE_BOOL);
+			return new Token(token::TYPE, sl, token::TYPE_BOOL);
 		}
 		if (nts.compare("string") == 0) {
-			return new Token(TYPE, sl, TYPE_STRING);
+			return new Token(token::TYPE, sl, token::TYPE_STRING);
 		}
 		if (nts.compare("void") == 0) {
-			return new Token(TYPE, sl, TYPE_VOID);
+			return new Token(token::TYPE, sl, token::TYPE_VOID);
 		}
 		//check if int
 
 		// TODO more keywords !!!
 		//non keyword(id)
-		return new Token(ID, sl, nts);
+		return new Token(token::ID, sl, nts);
 		break;
 	}
 	}
