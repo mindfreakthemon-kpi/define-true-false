@@ -10,19 +10,17 @@ include_directories(
 add_executable(dtf
     src/main.cpp
 		src/Lexer.cpp)
-
-add_executable(dtf_test
-    src/test.cpp
+		
+add_executable(dtf_lexer_test
+    src/test_lexer.cpp
 		src/Lexer.cpp)
-
-set_target_properties(dtf
-    PROPERTIES
-    COMPILE_FLAGS "")
-
-set_target_properties(dtf_test
-    PROPERTIES
-    COMPILE_FLAGS "")
+				
+add_executable(dtf_parser_test
+    src/test_parser.cpp
+    		src/Lexer.cpp
+		src/Parser.cpp)
 
 target_link_libraries(dtf gtest gtest_main)
-target_link_libraries(dtf_test gtest gtest_main)
+target_link_libraries(dtf_lexer_test gtest gtest_main)
+target_link_libraries(dtf_parser_test gtest gtest_main)
 

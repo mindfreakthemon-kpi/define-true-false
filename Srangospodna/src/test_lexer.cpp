@@ -9,11 +9,6 @@ using namespace lexer;
 
 namespace {
 
-template<typename T, size_t N>
-size_t array_lengthof(T (&array)[N]) {
-	return N;
-}
-
 vector<Token> tokenize(string source) {
 	Lexer l(source);
 	Token* t = NULL;
