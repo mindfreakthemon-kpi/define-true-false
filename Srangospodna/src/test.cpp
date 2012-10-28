@@ -8,10 +8,6 @@
 using namespace std;
 using namespace lexer;
 
-using token::Token;
-using token::SourceLocation;
-using token::TokenKind;
-
 namespace {
 
 vector<Token> tokenize(string source) {
@@ -26,7 +22,7 @@ vector<Token> tokenize(string source) {
 	return result;
 }
 
-::testing::AssertionResult tok_is(const Token &tok, TokenKind kind) {
+::testing::AssertionResult tok_is(const Token &tok, token::TokenKind kind) {
 	if (tok.getKind() != kind)
 		return testing::AssertionFailure() << "Expected token kind " << kind
 				<< ", got " << tok.getKind();
@@ -34,7 +30,7 @@ vector<Token> tokenize(string source) {
 	return testing::AssertionSuccess();
 }
 
-::testing::AssertionResult tok_is(const Token &tok, TokenKind kind,
+::testing::AssertionResult tok_is(const Token &tok, token::TokenKind kind,
 		unsigned line, unsigned column) {
 	if (tok.getKind() != kind)
 		return testing::AssertionFailure() << "Expected token kind " << kind

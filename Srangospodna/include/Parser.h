@@ -6,7 +6,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "Tokem.h"
+#include "Token.h"
 
 namespace parser {
 
@@ -42,7 +42,7 @@ private:
 		return source[next_index] == token::LT;
 	}
 
-	token::Token look_token() const
+	Token look_token() const
 	{
 		return source[next_index];
 	}
@@ -53,7 +53,7 @@ private:
 		next_index++;
 	}
 
-	std::vector<token::Token> source;
+	std::vector<Token> source;
 	size_t next_index;
 };
 

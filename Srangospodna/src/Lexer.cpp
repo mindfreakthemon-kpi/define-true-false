@@ -10,8 +10,6 @@
 #include "Lexer.h"
 #include <ctype.h>
 using namespace lexer;
-using token::Token;
-using token::SourceLocation;
 Lexer::Lexer(std::string source) :
 		col(0), row(1), charsDone(-1), file_buffer(source) {
 	file_length = source.size();

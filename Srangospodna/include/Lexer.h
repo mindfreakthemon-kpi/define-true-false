@@ -10,18 +10,16 @@
 #include <cassert>
 #include <string>
 #include <sstream>
-#include <fstream>
 #include <vector>
 #include <iostream>
 #include "Token.h"
-using namespace std;
 
 
 namespace lexer {
 class Lexer {
 public:
-	Lexer(string source);
-	token::Token* scan();
+	Lexer(std::string source);
+	Token* scan();
 	~Lexer() {
 	}
 private:
@@ -30,8 +28,7 @@ private:
 		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_');
 	}
 	int file_length;
-	string file_buffer;
-	ifstream file_is;
+	std::string file_buffer;
 	int col;
 	int row;
 	int charsDone;
