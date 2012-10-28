@@ -2,13 +2,16 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include <Lexer.h>
+#include "Parser.h"
 #include <iostream>
+
 using namespace std;
-//using namespace token;
 using namespace lexer;
+
 using token::Token;
 using token::SourceLocation;
 using token::TokenKind;
+
 namespace {
 
 vector<Token> tokenize(string source) {
@@ -62,9 +65,14 @@ TEST(Lexer, TokAllParens) {
 	ASSERT_TRUE(tok_is(toks[5], token::RT_CR_BRACKET, 1, 6));
 }
 
-TEST(Lexer, Ololo) {
-	string source =
-			"function name(var1:int[],var2:double,var3:string):void{ var i: int, v: double; i = 2; while(0){ i = 3;}}";
+TEST(Lexer, FuncDecl) {
+	string source = "function name(var1: int[], var2: double, var3: string): void {"
+		"var i: int,"
+			"v: double;"
+		"i = 2;"
+		"while(0){ i = 3;}"
+	"}";
+		
 	vector<Token> toks = tokenize(source);
 	ASSERT_EQ(44U, toks.size());
 	ASSERT_TRUE(tok_is(toks[0], token::FUNCTION, 1, 1));
@@ -110,3 +118,8 @@ TEST(Lexer, Ololo) {
 	ASSERT_TRUE(tok_is(toks[40], token::RT_CR_BRACKET, 1, 103));
 	ASSERT_TRUE(tok_is(toks[41], token::RT_CR_BRACKET, 1, 104));
 }
+
+TEST(Parser, DefaultTest) {
+
+}
+

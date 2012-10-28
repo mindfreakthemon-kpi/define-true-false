@@ -6,15 +6,16 @@
 #include <vector>
 #include <cstdint>
 
-#include "Lexer.h"
+#include "Tokem.h"
 
 namespace parser {
 
 class program {
 public:
-	program(std::vector<funcDecl> funcDeclList):funcDeclList(funcDeclList) {}
+	program(std::vector<funcDecl> funcDeclList) :
+		funcDeclList(std::move(funcDeclList)) {}
 	
-	std::vector<funcDecl> getFuncDeclList() {
+	const std::vector<funcDecl> & getFuncDeclList() {
 		return funcDeclList;
 	}
 private:
@@ -25,10 +26,11 @@ class Parser
 {
 public:
 	//no autoconstructing
-	explicit parser(std::vector<Token> source) : source(std::move(source)),
-		next_index(0), row(1), col(1) {}
+	explicit parser(std::vector<Token> source) : 
+		source(std::move(source)),
+		next_index(0) {}
 		
-	program parse() {
+	program * parse() {
 		std::vector<funcDecl> r;
 		
 		return new program(r);
@@ -37,12 +39,11 @@ public:
 private:
 	bool is_eof() const
 	{
-		return source[next_index] == token::TokenKind::LT;
+		return source[next_index] == token::LT;
 	}
 
 	token::Token look_token() const
 	{
-		assert(!is_eof());
 		return source[next_index];
 	}
 	
@@ -54,8 +55,6 @@ private:
 
 	std::vector<token::Token> source;
 	size_t next_index;
-	unsigned row;
-	unsigned col;
 };
 
 }
