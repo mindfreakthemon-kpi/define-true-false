@@ -128,7 +128,7 @@ TEST(Lexer, FuncDecl) {
 }
 
 TEST(Parser, DefaultTest) {
-	string source = "function name(var1: int[], var2: double, var3: string): void {"
+	string source = "function shasdjalsjAME12123(var1: int[], var2: double, var3: string): void {"
 		"var i: int,"
 			"v: double;"
 		"i = 2;"
@@ -139,8 +139,8 @@ TEST(Parser, DefaultTest) {
 	
 	ASSERT_FALSE(prog == NULL);
 	
-	node::CoreDumper_NodeVisitor dumper;
-	(*prog).accept(dumper);
+	node::SyntaxDumper dumper;
+	dumper.dump(prog);
 	cout << dumper.getResults() << std::endl;	
 }
 

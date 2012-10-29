@@ -230,6 +230,9 @@ public:
 	std::string getStringData() {
 		return string_data;
 	}
+	std::string getID() {
+		return string_data;
+	}
 	int getIntData() {
 		return int_data;
 	}

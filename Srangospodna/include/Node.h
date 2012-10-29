@@ -6,30 +6,50 @@
 
 namespace node {
 
-class funcDecl;
-class program;
-
-class NodeVisitor {
+class funcBlock {
 public:
-	virtual void visit(funcDecl* fD) = 0;
-	virtual void visit(program* p) = 0;
+	funcBlock() {}
 };
 
-class Node {
+class returnType {
 public:
-	virtual void accept(class NodeVisitor &v) = 0;
+	returnType() {}
 };
 
-class funcDecl : public Node {
+class funcParamDeclList {
 public:
-	funcDecl() {}	
+	funcParamDeclList() {}
+};
+
+class funcDecl {
+public:
+	funcDecl(Token id, funcParamDeclList *fPDL, returnType *rT, funcBlock *fB) : id(id),
+		fPDL(std::move(fPDL)), rT(std::move(rT)),
+		fB(std::move(fB)) {}	
 	
-	void accept(NodeVisitor &v) {
-		v.visit(this);
+	Token getIDToken() const {
+		return id;
 	}
+	
+	funcParamDeclList *getFuncParamDeclList() const {
+		return fPDL;
+	}
+	
+	returnType *getReturnType() const {
+		return rT;
+	}
+	
+	funcBlock *getFuncBlock() const {
+		return fB;
+	}
+private:
+	Token id;
+	funcParamDeclList *fPDL;
+	returnType *rT;
+	funcBlock *fB;
 };
 
-class program : public Node {
+class program {
 public:
 	program(std::vector<funcDecl> funcDeclList) :
 		funcDeclList(std::move(funcDeclList)) {}
@@ -37,36 +57,31 @@ public:
 	const std::vector<funcDecl> & getFuncDeclList() {
 		return funcDeclList;
 	}
-	
-	void accept(NodeVisitor &v) {
-		v.visit(this);
-	}
 private:
 	std::vector<funcDecl> funcDeclList;
 };
 
 
-
-
-
-class CoreDumper_NodeVisitor : public NodeVisitor {
+class SyntaxDumper {
 public:
-	CoreDumper_NodeVisitor() : ss() {}
+	SyntaxDumper() : ss() {}
 	
-	void visit(program* p) {
-		ss << "PROGRAM::" << std::endl;
+	void dump(program *p) {		
+		std::vector<node::funcDecl> funcDeclList = p->getFuncDeclList();
 		
-		std::vector<node::funcDecl> fDlist = p->getFuncDeclList();
-		
-		for(std::vector<node::funcDecl>::iterator it = fDlist.begin(); it != fDlist.end(); ++it) {
-		    (*it).accept(*this);
+		for(std::vector<node::funcDecl>::iterator it = funcDeclList.begin(); it != funcDeclList.end(); ++it) {
+		   dump(*it);
 		}
-		
-		ss << "ENDPROGRAM" << std::endl;
 	}
 	 
-	void visit(funcDecl* fDw) {
-		ss << "Got function" << std::endl;d
+	void dump(const funcDecl &fD) {
+		ss << "function " << fD.getIDToken().getID() << "(";
+		//ss << funcparamdecllist
+		ss << "):";
+		//ss << return type
+		ss << "{";
+		//ss << funcblock
+		ss << "}";
 	}
 	
 	std::string getResults() {
@@ -75,7 +90,6 @@ public:
 private:
 	std::stringstream ss;
 };
-
 
 }
 

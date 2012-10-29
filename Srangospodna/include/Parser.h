@@ -18,8 +18,11 @@ public:
 		source(std::move(source)),
 		next_index(0) {}
 		
-	node::program * parse();
-	node::funcDecl * parseFuncDecl();
+	node::program *parse();
+	node::funcDecl *parseFuncDecl();
+	node::funcParamDeclList *parseFuncParamDeclList();
+	node::returnType *parseReturnType();
+	node::funcBlock *parseFuncBlock();
 
 private:
  	bool is_eof() const {
