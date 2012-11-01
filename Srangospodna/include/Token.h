@@ -239,6 +239,9 @@ public:
 	double getDoubleData() {
 		return double_data;
 	}
+	token::DataType getDataType() const {
+		return data_type;
+	}
 	SourceLocation getLocation() const {
 		return loc;
 	}

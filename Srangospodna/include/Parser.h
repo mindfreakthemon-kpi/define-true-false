@@ -10,26 +10,27 @@
 
 #include "Token.h"
 #include "Node.h"
+#include "Error.h"
 
 class Parser {
 public:
 	//no autoconstructing
-	explicit Parser(std::vector<Token> source) : 
+	explicit Parser(std::vector<Token> source, ErrorLoggerWrapper *logger) : 
 		source(std::move(source)),
+		logger(logger),
 		next_index(0) {}
 		
 	node::program *parse();
 	node::funcDecl *parseFuncDecl();
-	node::funcParamDeclList *parseFuncParamDeclList();
-	node::returnType *parseReturnType();
-	node::funcBlock *parseFuncBlock();
+	std::vector<node::varDecl *> *parseFuncParamDeclList();
+	node::varType *parseVarType();
 
 private:
- 	bool is_eof() const {
+ 	bool is_eof() {
 		return source[next_index].getKind() == token::LT;
 	}
 
-	Token look_token() const {
+	Token look_token() {
 		return source[next_index];
 	}
 	
@@ -37,9 +38,19 @@ private:
 		assert(!is_eof());
 		next_index++;
 	}
-
+	
+	SourceLocation point_token() {
+		return look_token().getLocation();
+	}
+	
+	std::string recognize_token() {
+		return look_token().getKindString();
+	}
+	
 	std::vector<Token> source;
 	size_t next_index;
+	
+	ErrorLoggerWrapper *logger;
 };
 
 #endif /* PARSER_H */

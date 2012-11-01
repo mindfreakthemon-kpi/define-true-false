@@ -28,7 +28,9 @@ vector<Token> tokenize(string source) {
 }
 
 node::program * programize(vector<Token> toks) {
-	Parser p(toks);
+	StdoutErrorLogger eL;
+	ErrorLoggerWrapper eLW(&eL);
+	Parser p(toks, &eLW);
 	
 	return p.parse();
 }
@@ -128,7 +130,7 @@ TEST(Lexer, FuncDecl) {
 }
 
 TEST(Parser, DefaultTest) {
-	string source = "function shasdjalsjAME12123(var1: int[], var2: double, var3: string): void {"
+	string source = "function name(var1: int[], var2: double, var3: string): void {"
 		"var i: int,"
 			"v: double;"
 		"i = 2;"
