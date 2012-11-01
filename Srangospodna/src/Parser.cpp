@@ -1,7 +1,7 @@
 #include "Parser.h"
 
 node::program *Parser::parse() {
-	std::vector<node::funcDecl*> r;
+	std::vector<node::funcDecl *> r;
 	node::funcDecl *fD;
 			
 	while(look_token().getKind() == token::FUNCTION) {
@@ -15,7 +15,6 @@ node::program *Parser::parse() {
 	
 	if(!is_eof()) {
 		logger->error(point_token(), "Unexpected ", recognize_token(), ", expected FUNCTION");
-		
 		return NULL;
 	}	
 	
@@ -42,7 +41,6 @@ node::funcDecl *Parser::parseFuncDecl() {
 	consume_token();	
 	std::vector<node::varDecl *> *fPDL = parseFuncParamDeclList();
 	
-	//no sense to go further if smth happend
 	if(fPDL == NULL)
 		return NULL;
 	
@@ -56,6 +54,9 @@ node::funcDecl *Parser::parseFuncDecl() {
 	
 	consume_token();	
 	node::varType *rT = parseVarType();
+	
+	if(rT == NULL)
+		return NULL;
 	
 	if(look_token().getKind() != token::LF_CR_BRACKET) {
 		logger->error(point_token(), "Unexpected ", recognize_token(), ", expected LF_CR_BRACKET");
@@ -84,7 +85,11 @@ node::funcDecl *Parser::parseFuncDecl() {
 std::vector<node::varDecl *> *Parser::parseFuncParamDeclList() {
 	std::vector<node::varDecl *> *vDL = new std::vector<node::varDecl *>;
 	std::string name;
-	
+
+	if(look_token().getKind() == token::RT_PARENTHESES) {
+		return vDL;
+	}
+		
 	while(!is_eof()) {
 		if(look_token().getKind() != token::ID) {
 			logger->error(point_token(), "Unexpected ", recognize_token(), ", expected ID");
