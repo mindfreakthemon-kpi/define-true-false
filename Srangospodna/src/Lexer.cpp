@@ -1,15 +1,10 @@
-/* 
- * File:   Lexer.cpp
- * Author: CrashTUA
- *
- * Created on 27 Сентябрь 2012 г., 18:54
- */
+#include "Lexer.h"
 
 #include <stddef.h>
 #include <iostream>
-#include "Lexer.h"
-#include <ctype.h>
+
 using namespace lexer;
+
 Lexer::Lexer(std::string source) :
 		col(0), row(1), charsDone(-1), file_buffer(source) {
 	file_length = source.size();
@@ -108,6 +103,7 @@ Token* Lexer::scan() {
 		return new Token(token::CARET, sl);
 	case '=':
 		if (file_buffer[charsDone + 1] == '=') {
+			charsDone++;
 			return new Token(token::DEQUALS, sl);
 		} else
 			return new Token(token::EQUALS, sl);
@@ -115,6 +111,14 @@ Token* Lexer::scan() {
 		return new Token(token::AND, sl);
 	case '|':
 		return new Token(token::OR, sl);
+	case '!':
+		if (file_buffer[charsDone + 1] == '=') {
+			charsDone++;
+			return new Token(token::NEQUALS, sl);
+		} else
+			return new Token(token::NEGATION, sl);
+	case '~':
+		return new Token(token::TILDE, sl);
 		//STRING
 	case '"': {
 		SourceLocation pos(row, col);

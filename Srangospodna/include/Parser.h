@@ -14,8 +14,7 @@
 
 class Parser {
 public:
-	//no autoconstructing
-	explicit Parser(std::vector<Token> source, ErrorLoggerWrapper *logger) : 
+	Parser(std::vector<Token> source, ErrorLoggerWrapper *logger) : 
 		source(std::move(source)),
 		logger(logger),
 		next_index(0) {}
@@ -32,8 +31,22 @@ private:
 	node::Statement *parseWhileStatement();
 	node::Statement *parseReturnStatement();
 	node::Statement *parseExpressionOrAssignmentStatement();	
-	node::BoolExpression *parseBoolExpression();
 	std::vector<node::VarDecl *> *parseVarDeclList();
+	node::Expression *parseBoolExpression();
+	node::Expression *parseBoolTerm();
+	node::Expression *parseBoolNotFactor();
+	node::Expression *parseBoolRelation();
+	node::Expression *parseBinExpression();
+	node::Expression *parseBinTerm();
+	node::Expression *parseBinNotFactor();
+	node::Expression *parseMathExpression();
+	node::Expression *parseMathTerm();
+	node::Expression *parseMathSignedFactor();
+	node::Expression *parseParenthesesExpression();
+	node::Expression *parseOperand();	
+	node::Expression *parseFuncCallExpression(std::string *name);
+	node::Expression *parseArrayAccessExpression(std::string *name);
+	
 	
 	Token next_token() {
 		return source[next_index];
@@ -57,7 +70,7 @@ private:
 	}
 	
 	std::string recognize_token() {
-		return next_token().getKindString();
+		return token::getKindString(next_kind());
 	}
 	
 	std::vector<Token> source;

@@ -6,9 +6,135 @@
 
 namespace node {
 
-class BoolExpression {
+class Expression {
+public:	
+	Expression() {}
+	
+	Expression(Expression *leftExpr, Expression *rightExpr, token::TokenKind operation) :
+		operation(operation),
+		leftExpr(leftExpr),
+		rightExpr(rightExpr) {}
+	
+	Expression *getLeftSide() const {
+		return leftExpr;
+	}
+	
+	Expression *getRightSide() const {
+		return rightExpr;
+	}
+	
+	token::TokenKind getOperationType() const {
+		return operation;
+	}
+		
+	virtual ~Expression() {}
+
+private:
+	Expression *leftExpr;
+	Expression *rightExpr;
+	
+	token::TokenKind operation;
+};
+
+class IntLiteral : public Expression {
 public:
-	BoolExpression() {}
+	IntLiteral(uint32_t value) :
+		value(value) {}
+		
+	uint32_t getValue() const {
+		return value;
+	}
+
+private:
+	uint32_t value;
+};
+
+class DoubleLiteral : public Expression {
+public:
+	DoubleLiteral(double value) :
+		value(value) {}
+		
+	double getValue() const {
+		return value;
+	}
+
+private:
+	double value;
+};
+
+class StringLiteral : public Expression {
+public:
+	StringLiteral(std::string value) :
+  		value(std::move(value)) {}
+  		
+  	const std::string &getValue() const {
+  		return value;
+  	}
+
+private:
+	std::string value;
+};
+
+class BoolLiteral : public Expression {
+public:
+	BoolLiteral(bool value) :
+ 		value(value) {}
+ 		
+ 	bool getValue() const {
+ 		return value;
+ 	}
+
+private:
+	bool value;
+};
+
+class VarReferenceExpression : public Expression {
+public:
+	VarReferenceExpression(std::string name) : 
+		name(std::move(name)) {}
+		
+	const std::string &getName() const {
+		return name;
+	}
+	
+private:
+	std::string name;
+};
+
+class FuncCallExpression : public Expression {
+public:
+	FuncCallExpression(std::string name, std::vector<Expression *> args) : 
+		name(std::move(name)),
+		args(std::move(args)) {}
+		
+	const std::string &getName() const {
+		return name;
+	}
+	
+	const std::vector<Expression *> &getArguments() const {
+		return args;
+	}
+private:
+	std::string name;
+	std::vector<Expression *> args;
+};
+
+class ArrayAccessExpression : public Expression {
+public:
+	ArrayAccessExpression(std::string name, Expression *index) : 
+		name(std::move(name)),
+		index(index) {}
+		
+	const std::string &getName() const {
+		return name;
+	}
+	
+	Expression *getIndexExpression() const {
+		return index;
+	}
+private:
+	std::string name;
+	Expression * index;
 };
 
 class Statement {
@@ -18,99 +144,102 @@ public:
 
 class IfStatement : public Statement {
 public:
-	IfStatement(node::BoolExpression *bE, std::vector<node::Statement *> sLT) :
-		bE(bE),
-		sLT(std::move(sLT)) {}
+	IfStatement(Expression *condition, std::vector<node::Statement *> sLT, std::vector<node::Statement *> sLF) :
+		condition(condition),
+		sLT(std::move(sLT)),
+		sLF(std::move(sLF)),
+		elseBody(true) {}
 		
-	node::BoolExpression *getBoolExpression() const {
-		return bE;
+	IfStatement(Expression *condition, std::vector<node::Statement *> sLT) :
+		condition(condition),
+		sLT(std::move(sLT)),
+		elseBody(false) {}
+		
+	bool hasElseBody() const {
+		return elseBody;
+	}		
+
+	Expression *getCondition() const {
+		return condition;
 	}
 	
-	const std::vector<node::Statement *> &getStatementsListTrue() {
+	const std::vector<node::Statement *> &getStatementsListTrue() const {
 		return sLT;
 	}
 	
-private:
-	node::BoolExpression *bE;
-	std::vector<node::Statement *> sLT;
-};
-
-class IfElseStatement : public IfStatement {
-public:
-	IfElseStatement(node::BoolExpression *bE, std::vector<node::Statement *> sLT, std::vector<node::Statement *> sLF) :
-		IfStatement(bE, std::move(sLT)),
-		sLF(std::move(sLF)) {}
-	
-	const std::vector<node::Statement *> &getStatementsListFalse() {
+	const std::vector<node::Statement *> &getStatementsListFalse() const {
 		return sLF;
 	}
 	
 private:
+	Expression *condition;
+	std::vector<node::Statement *> sLT;
 	std::vector<node::Statement *> sLF;
+	bool elseBody;
 };
 
 class WhileStatement : public Statement {
 public:
-	WhileStatement(node::BoolExpression *bE, std::vector<node::Statement *> sL) :
-		bE(bE),
+	WhileStatement(Expression *condition, std::vector<node::Statement *> sL) :
+		condition(condition),
 		sL(std::move(sL)) {}
 	
-	node::BoolExpression *getBoolExpression() const {
-		return bE;
+	Expression *getCondition() const {
+		return condition;
 	}
 	
-	const std::vector<node::Statement *> &getStatementsList() {
+	const std::vector<node::Statement *> &getStatementsList() const {
 		return sL;
 	}
 	
 private:
-	node::BoolExpression *bE;
+	Expression *condition;
 	std::vector<node::Statement *> sL;
 };
 
 class ReturnStatement : public Statement {
 public:
-	ReturnStatement(node::BoolExpression *bE) :
-		bE(bE) {}
+	ReturnStatement(Expression *retExpr) :
+		retExpr(retExpr) {}
 	
-	node::BoolExpression *getBoolExpression() const {
-		return bE;
+	Expression *getReturnExpression() const {
+		return retExpr;
 	}
 	
 private:
-	node::BoolExpression *bE;
+	Expression *retExpr;
 };
 
 class AssignmentStatement : public Statement {
 public:
-	AssignmentStatement(node::BoolExpression *bEL, node::BoolExpression *bER) :
-		bEL(bEL),
-		bER(bER) {}
+	AssignmentStatement(Expression *leftExpr, Expression *rightExpr) :
+		leftExpr(leftExpr),
+		rightExpr(rightExpr) {}
 		
-	node::BoolExpression *getBoolExpressionLeft() {
-		return bEL;
+	Expression *getLeftExpression() const {
+		return leftExpr;
 	}
 	
-	node::BoolExpression *getBoolExpressionRight() {
-		return bER;
+	Expression *getRightExpression() const {
+		return rightExpr;
 	}
 	
 private:
-	node::BoolExpression *bEL;
-	node::BoolExpression *bER;
+	Expression *leftExpr;
+	Expression *rightExpr;
 };
 
 class ExpressionStatement : public Statement {
 public:
-	ExpressionStatement(node::BoolExpression *bE) :
-		bE(bE) {}
+	ExpressionStatement(Expression *expr) :
+		expr(expr) {}
 		
-	node::BoolExpression *getBoolExpression() {
-		return bE;
+	Expression *getExpression() const {
+		return expr;
 	}
 
 private:
-	node::BoolExpression *bE;
+	Expression *expr;
 };
 
 class VarType {
@@ -145,7 +274,7 @@ public:
 		name(std::move(name)),
 		vT(vT) {}
 		
-	const std::string &getName() {
+	const std::string &getName() const {
 		return name;
 	} 
 	
@@ -183,7 +312,7 @@ public:
 		return fLVL;
 	}
 	
-	const std::vector<node::Statement *> &getStatementsList() {
+	const std::vector<node::Statement *> &getStatementsList() const {
 		return sL;
 	}	
 	
@@ -200,7 +329,7 @@ public:
 	Program(std::vector<FuncDecl *> fDL) :
 		fDL(std::move(fDL)) {}
 	
-	const std::vector<FuncDecl *> &getFuncDeclList() {
+	const std::vector<FuncDecl *> &getFuncDeclList() const {
 		return fDL;
 	}
 	
@@ -227,7 +356,7 @@ public:
 		dump(fD->getFuncParamsDeclList());	
 		ss << ")";
 		
-		ss << " : " << dataTypeToString(fD->getReturnType()->getDataType());
+		ss << " : " << token::dataTypeString(fD->getReturnType()->getDataType());
 		
 		ss << " {\n";		
 		if(fD->getFuncLocalVarsList().size() > 0) {
@@ -251,7 +380,7 @@ public:
 	}
 	
 	void dump(VarDecl *vD) {
-		ss << vD->getName() << " : " << dataTypeToString(vD->getVarType()->getDataType());
+		ss << vD->getName() << " : " << token::dataTypeString(vD->getVarType()->getDataType());
 	}
 	
 	void dump(const std::vector<Statement *> &sL) {
@@ -261,32 +390,75 @@ public:
 	}
 	
 	void dump(Statement *s) {
-		if(IfElseStatement *iES = dynamic_cast<IfElseStatement *>(s)) {
+		if(IfStatement *iS = dynamic_cast<IfStatement *>(s)) {
 			ss << "if(";
-			
+			dump(iS->getCondition());
 			ss << ") {\n";
-			
-			ss << "} else {\n";
-			
+			dump(iS->getStatementsListTrue());			
+			if(iS->hasElseBody()) {
+				ss << "} else {\n";
+				dump(iS->getStatementsListFalse());
+			}					
 			ss << "}\n";
-		} else if(IfStatement *iS = dynamic_cast<IfStatement *>(s)) {
-			ss << "if(";
-			
-			ss << ") {\n";
-						
-			ss << "}\n";
-		} else if(WhileStatement *iS = dynamic_cast<WhileStatement *>(s)) {
+		} else if(WhileStatement *wS = dynamic_cast<WhileStatement *>(s)) {
 			ss << "while(";
-			
+			dump(wS->getCondition());
 			ss << ") {\n";
-						
+			dump(wS->getStatementsList());	
 			ss << "}\n";
 		} else if(ReturnStatement *rS = dynamic_cast<ReturnStatement *>(s)) {
-		
-		} else if(AssignmentStatement *rS = dynamic_cast<AssignmentStatement *>(s)) {
-		
-		} else if(ExpressionStatement *rS = dynamic_cast<ExpressionStatement *>(s)) {
-		
+			ss << "return ";
+			dump(rS->getReturnExpression());
+			ss << ";\n";
+		} else if(AssignmentStatement *aS = dynamic_cast<AssignmentStatement *>(s)) {
+			dump(aS->getLeftExpression());
+			ss << " = ";
+			dump(aS->getRightExpression());
+			ss << ";\n";
+		} else if(ExpressionStatement *eS = dynamic_cast<ExpressionStatement *>(s)) {
+			dump(eS->getExpression());
+			ss << ";\n";
+		}
+	}
+	
+	void dump(Expression *e) {
+		if(IntLiteral *iL = dynamic_cast<IntLiteral *>(e)) {
+			ss << iL->getValue();
+		} else if(DoubleLiteral *dL = dynamic_cast<DoubleLiteral *>(e)) {
+			ss << dL->getValue();
+		} else if(StringLiteral *sL = dynamic_cast<StringLiteral *>(e)) {
+			ss << sL->getValue();
+		} else if(BoolLiteral *bL = dynamic_cast<BoolLiteral *>(e)) {
+			ss << bL->getValue();
+		} else if(VarReferenceExpression *vRE = dynamic_cast<VarReferenceExpression *>(e)) {
+			ss << vRE->getName();
+		} else if(FuncCallExpression *fCE = dynamic_cast<FuncCallExpression *>(e)) {
+			ss << fCE->getName() << "(";
+			dump(fCE->getArguments());
+			ss << ")";			
+		} else if(ArrayAccessExpression *aAE = dynamic_cast<ArrayAccessExpression *>(e)) {
+			ss << aAE->getName() << "[";
+			dump(aAE->getIndexExpression());
+			ss << "]";
+		} else {
+			Expression *eL = e->getLeftSide();
+			Expression *eR = e->getRightSide();
+			
+			if(eL != NULL)
+				dump(eL);
+				
+			ss << token::getSourceString(e->getOperationType());
+			dump(eR);			
+		}
+	}
+	
+	void dump(const std::vector<Expression *> &fAL) {
+		for(std::vector<Expression *>::const_iterator it = fAL.begin(); it != fAL.end(); ++it) {
+			dump(*it);
+			
+			if((it + 1) != fAL.end()) {
+				ss << ", ";
+			}
 		}
 	}
 	
@@ -296,18 +468,6 @@ public:
 	
 private:
 	std::stringstream ss;
-	
-	std::string dataTypeToString(token::DataType dT) {
-		switch(dT) {
-			case token::TYPE_INT: return "int";
-			case token::TYPE_DOUBLE: return "double";
-			case token::TYPE_STRING: return "string";
-			case token::TYPE_BOOL: return "bool";
-			case token::TYPE_VOID: return "void";
-		}
-		
-		return "unknown";
-	}
 };
 
 }

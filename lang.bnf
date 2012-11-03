@@ -20,18 +20,18 @@
               <returnStatement> | <assignmentStatement> | 
               <expressionStatement>
 
-<var> = <IDENTIFIER> [ "[" <expression> "]" ]
+<var> = <IDENTIFIER> [ "[" <mathExpression> "]" ]
 <boolExpression> = <boolTerm> { "||" <boolTerm> }
 <boolTerm> = <boolNotFactor> { "&&" <boolNotFactor> }
 <boolNotFactor> = [ "!" ] <boolRelation>
 <boolRelation> = <binExpression> [ ("==" | "!=" | "<=" | ">=" | "<" | ">") <binExpression> ]
 <binExpression> = <binTerm> { ("|" | "^") <binTerm> }
 <binTerm> = <binNotFactor> { "&" <binNotFactor> }
-<binNotFactor> = [ "~" ] <expression>
-<expression> = <term> { ("+" | "-") <term> }
-<term> = <signedFactor> { ("*" | "/") <signedFactor> }
-<signedFactor> = [ "-" ] <unsignedFactor>
-<unsignedFactor> = "(" <boolExpression> ")" | <anyLiteral> | <var> | <funcCall>
+<binNotFactor> = [ "~" ] <mathExpression>
+<mathExpression> = <mathTerm> { ("+" | "-") <mathTerm> }
+<mathTerm> = <mathSignedFactor> { ("*" | "/") <mathSignedFactor> }
+<mathSignedFactor> = [ "-" ] <operand>
+<operand> = "(" <boolExpression> ")" | <anyLiteral> | <var> | <funcCall>
 
 <funcParamList> = <boolExpression> { "," <boolExpression> }
 <funcCall> = <IDENTIFIER> "(" [ <funcParamList> ] ")"

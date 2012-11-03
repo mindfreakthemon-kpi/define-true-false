@@ -5,11 +5,14 @@
  *      Author: CrashTUA
  */
 
-#ifndef TOKEN_H_
-#define TOKEN_H_
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #include <string>
-#include <sstream> 
+#include <sstream>
+
 namespace token {
+
 enum TokenKind {
 	LF_PARENTHESES = 1, //'('
 	RT_PARENTHESES, //')'
@@ -41,10 +44,13 @@ enum TokenKind {
 	CARET, //'^'
 	EQUALS, //'='
 	DEQUALS, //'=='
+	NEQUALS, //'!='
 	AND, //'&'
 	OR, //'|'
 	DAND, //'&&'
 	DOR, //'||'
+	NEGATION, //!
+	TILDE, //~
 
 	ID,
 	FUNCTION,
@@ -69,7 +75,173 @@ enum TokenKind {
 enum DataType {
 	NONE = 0, TYPE_INT, TYPE_DOUBLE, TYPE_STRING, TYPE_BOOL, TYPE_VOID
 };
+
+inline std::string getKindString(TokenKind kind) {
+	switch(kind) {
+		case LF_PARENTHESES:
+			return std::string("LF_PARENTHESES");
+		case RT_PARENTHESES:
+			return std::string("RT_PARENTHESES");
+		case LF_CR_BRACKET:
+			return std::string("LF_CR_BRACKET");
+		case RT_CR_BRACKET:
+			return std::string("RT_CR_BRACKET");
+		case LF_SQ_BRACKET:
+			return std::string("LF_SQ_BRACKET");
+		case RT_SQ_BRACKET:
+			return std::string("RT_SQ_BRACKET");
+	
+		case SEMICOLON:
+			return std::string("SEMICOLON");
+		case COLON:
+			return std::string("COLON");
+		case COMMA:
+			return std::string("COMMA");
+	
+		case LESS:
+			return std::string("LESS");
+		case MORE:
+			return std::string("MORE");
+	
+		case LESS_EQUALS:
+			return std::string("LESS_EQUALS");
+		case MORE_EQUALS:
+			return std::string("MORE_EQUALS");
+	
+		case PLUS:
+			return std::string("PLUS");
+		case MINUS:
+			return std::string("MINUS");
+		case MULT:
+			return std::string("MULT");
+		case DIVIDE:
+			return std::string("DIVIDE");
+	
+		case DOUBLE_QUOTE:
+			return std::string("DOUBLE_QUOTE");
+		case QUOTE:
+			return std::string("QUOTE");
+	
+		case CARET:
+			return std::string("CARET");
+		case EQUALS:
+			return std::string("EQUALS");
+		case DEQUALS:
+			return std::string("DEQUALS");
+		case NEQUALS:
+			return std::string("NEQUALS");
+		case AND:
+			return std::string("AND");
+		case OR:
+			return std::string("OR");
+		case DAND:
+			return std::string("DAND");
+		case DOR:
+			return std::string("DOR");
+		case NEGATION:
+			return std::string("NEGATION");
+		case TILDE:
+			return std::string("TILDE");
+	
+		case ID:
+			return std::string("ID");
+		case FUNCTION:
+			return std::string("FUNCTION");
+		case WHILE:
+			return std::string("WHILE");
+		case RETURN:
+			return std::string("RETURN");
+	
+		case INT:
+			return std::string("INT");
+		case DOUBLE:
+			return std::string("DOUBLE");
+		case BOOL:
+			return std::string("BOOL");
+		case STRING:
+			return std::string("STRING");
+	
+		case OPERATOR:
+			return std::string("OPERATOR");
+		case COMMENT:
+			return std::string("COMMENT");
+	
+		case TYPE:
+			return std::string("TYPE");
+		case VAR:
+			return std::string("VAR");
+		case ELSE:
+			return std::string("ELSE");
+		case IF:
+			return std::string("IF");
+	
+		case LT:
+			return std::string("LT"); //last token of file
+	}
+	
+	assert(false);
+};
+
+inline std::string getSourceString(TokenKind kind) {
+	switch(kind) {	
+		case LESS:
+			return "<";
+		case MORE:
+			return ">";
+	
+		case LESS_EQUALS:
+			return "<=";
+		case MORE_EQUALS:
+			return ">=";
+	
+		case PLUS:
+			return "+";
+		case MINUS:
+			return "-";
+		case MULT:
+			return "*";
+		case DIVIDE:
+			return "/";
+	
+		case CARET:
+			return "^";
+		//case EQUALS:
+		//	return "=";
+		case DEQUALS:
+			return "==";
+		case NEQUALS:
+			return "!=";
+		case AND:
+			return "&";
+		case OR:
+			return "|";
+		case DAND:
+			return "&&";
+		case DOR:
+			return "||";
+		case NEGATION:
+			return "!";
+		case TILDE:
+			return "~";
+	}
+	
+	assert(false);
+};
+
+inline std::string dataTypeString(DataType dT) {
+	switch(dT) {
+		case token::TYPE_INT: return "int";
+		case token::TYPE_DOUBLE: return "double";
+		case token::TYPE_STRING: return "string";
+		case token::TYPE_BOOL: return "bool";
+		case token::TYPE_VOID: return "void";
+	}
+	
+	return "unknown";
 }
+
+}
+
 struct SourceLocation {
 	int row;
 	int col;
@@ -91,6 +263,7 @@ struct SourceLocation {
 		return ss.str();
 	}
 };
+
 class Token {
 public:
 	/**
@@ -131,103 +304,6 @@ public:
 	token::TokenKind getKind() const {
 		return kind;
 	}
-	std::string getKindString() const {
-		switch (kind) {
-		case token::LF_PARENTHESES:
-			return std::string("LF_PARENTHESES");
-		case token::RT_PARENTHESES:
-			return std::string("RT_PARENTHESES");
-		case token::LF_CR_BRACKET:
-			return std::string("LF_CR_BRACKET");
-		case token::RT_CR_BRACKET:
-			return std::string("RT_CR_BRACKET");
-		case token::LF_SQ_BRACKET:
-			return std::string("LF_SQ_BRACKET");
-		case token::RT_SQ_BRACKET:
-			return std::string("RT_SQ_BRACKET");
-
-		case token::SEMICOLON:
-			return std::string("SEMICOLON");
-		case token::COLON:
-			return std::string("COLON");
-		case token::COMMA:
-			return std::string("COMMA");
-
-		case token::LESS:
-			return std::string("LESS");
-		case token::MORE:
-			return std::string("MORE");
-
-		case token::LESS_EQUALS:
-			return std::string("LESS_EQUALS");
-		case token::MORE_EQUALS:
-			return std::string("MORE_EQUALS");
-
-		case token::PLUS:
-			return std::string("PLUS");
-		case token::MINUS:
-			return std::string("MINUS");
-		case token::MULT:
-			return std::string("MULT");
-		case token::DIVIDE:
-			return std::string("DIVIDE");
-
-		case token::DOUBLE_QUOTE:
-			return std::string("DOUBLE_QUOTE");
-		case token::QUOTE:
-			return std::string("QUOTE");
-
-		case token::CARET:
-			return std::string("CARET");
-		case token::EQUALS:
-			return std::string("EQUALS");
-		case token::DEQUALS:
-			return std::string("DEQUALS");
-		case token::AND:
-			return std::string("AND");
-		case token::OR:
-			return std::string("OR");
-		case token::DAND:
-			return std::string("DAND");
-		case token::DOR:
-			return std::string("DOR");
-
-		case token::ID:
-			return std::string("ID");
-		case token::FUNCTION:
-			return std::string("FUNCTION");
-		case token::WHILE:
-			return std::string("WHILE");
-
-		case token::INT:
-			return std::string("INT");
-		case token::DOUBLE:
-			return std::string("DOUBLE");
-		case token::BOOL:
-			return std::string("BOOL");
-		case token::STRING:
-			return std::string("STRING");
-
-		case token::OPERATOR:
-			return std::string("OPERATOR");
-		case token::COMMENT:
-			return std::string("COMMENT");
-
-		case token::TYPE:
-			return std::string("TYPE");
-		case token::VAR:
-			return std::string("VAR");
-		case token::ELSE:
-			return std::string("ELSE");
-		case token::IF:
-			return std::string("IF");
-
-		case token::LT:
-			return std::string("LT"); //last token of file
-		}
-
-		assert(false && "unreachable");
-	}
 	std::string getStringData() {
 		return string_data;
 	}
@@ -259,4 +335,5 @@ private:
 	double double_data;
 	token::DataType data_type;
 };
+
 #endif /* TOKEN_H_ */

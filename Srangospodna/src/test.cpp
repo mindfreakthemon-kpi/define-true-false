@@ -133,7 +133,7 @@ TEST(Parser, DefaultTest) {
 	string source = "function name(var1: int[], var2: double, var3: string): void {"
 		"var i: int,"
 			"v: double;"
-		"if(){} while(){}"
+		"if(2==2){if(1){} if(0){} if(2==2){} while(val){} } while(foo){}"
 	"}";
 		
 	vector<Token> toks = tokenize(source);
