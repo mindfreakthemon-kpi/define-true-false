@@ -20,18 +20,31 @@ public:
 		logger(logger),
 		next_index(0) {}
 		
-	node::program *parse();
-	node::funcDecl *parseFuncDecl();
-	std::vector<node::varDecl *> *parseFuncParamDeclList();
-	node::varType *parseVarType();
-
+	node::Program *parse();
+	
 private:
- 	bool is_eof() {
-		return source[next_index].getKind() == token::LT;
-	}
-
-	Token look_token() {
+	node::FuncDecl *parseFuncDecl();
+	std::vector<node::VarDecl *> *parseFuncParamDeclList();
+	std::vector<node::VarDecl *> *parseFuncLocalVarsList();
+	node::VarType *parseVarType();
+	std::vector<node::Statement *> *parseStatementList();
+	node::Statement *parseIfStatement();
+	node::Statement *parseWhileStatement();
+	node::Statement *parseReturnStatement();
+	node::Statement *parseExpressionOrAssignmentStatement();	
+	node::BoolExpression *parseBoolExpression();
+	std::vector<node::VarDecl *> *parseVarDeclList();
+	
+	Token next_token() {
 		return source[next_index];
+	}
+	
+	token::TokenKind next_kind() {
+		return next_token().getKind();
+	}
+	
+	bool is_eof() {
+		return next_kind() == token::LT;
 	}
 	
 	void consume_token() {
@@ -40,11 +53,11 @@ private:
 	}
 	
 	SourceLocation point_token() {
-		return look_token().getLocation();
+		return next_token().getLocation();
 	}
 	
 	std::string recognize_token() {
-		return look_token().getKindString();
+		return next_token().getKindString();
 	}
 	
 	std::vector<Token> source;

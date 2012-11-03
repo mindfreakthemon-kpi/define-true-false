@@ -14,7 +14,7 @@
 
 <expressionStatement> = <boolExpression> ";"
 <assignmentStatement> = <boolExpression> "=" <boolExpression> ";"
-<returnStatement> = "return" <boolExpression> ";"
+<returnStatement> = "return" [ <boolExpression> ] ";"
 
 <statement> = <ifStatement> | <whileStatement> |
               <returnStatement> | <assignmentStatement> | 

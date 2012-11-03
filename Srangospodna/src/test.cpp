@@ -27,7 +27,7 @@ vector<Token> tokenize(string source) {
 	return result;
 }
 
-node::program * programize(vector<Token> toks) {
+node::Program * programize(vector<Token> toks) {
 	StdoutErrorLogger eL;
 	ErrorLoggerWrapper eLW(&eL);
 	Parser p(toks, &eLW);
@@ -133,11 +133,11 @@ TEST(Parser, DefaultTest) {
 	string source = "function name(var1: int[], var2: double, var3: string): void {"
 		"var i: int,"
 			"v: double;"
-		"i = 2;"
+		"if(){} while(){}"
 	"}";
 		
 	vector<Token> toks = tokenize(source);
-	node::program * prog = programize(toks);
+	node::Program * prog = programize(toks);
 	
 	ASSERT_FALSE(prog == NULL);
 	

@@ -52,6 +52,13 @@ public:
 		eL->error(sl, ss.str());
 	}
 	
+	template<typename T1, typename... Ts>
+ 	void warning(SourceLocation sl, T1 &&message_first, Ts &&... message_rest) {
+		std::ostringstream ss;
+		append(ss, message_first, message_rest...);
+		eL->warning(sl, ss.str());
+	}
+	
 private:
 	ErrorLogger *eL;
 };

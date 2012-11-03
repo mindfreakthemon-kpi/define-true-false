@@ -49,6 +49,7 @@ enum TokenKind {
 	ID,
 	FUNCTION,
 	WHILE,
+	RETURN,
 	IF,
 	ELSE,
 
@@ -95,39 +96,39 @@ public:
 	/**
 	 * 	Default constructor
 	 **/
-	Token(int kind, SourceLocation loc) :
+	Token(token::TokenKind kind, SourceLocation loc) :
 			kind(kind), loc(loc), id(""), string_data(""), int_data(0), double_data(
 					0), data_type(token::NONE) {
 	}
 	/**
 	 * For STRING and ID
 	 **/
-	Token(int kind, SourceLocation loc, std::string string_data) :
+	Token(token::TokenKind kind, SourceLocation loc, std::string string_data) :
 			kind(kind), loc(loc), id(string_data), string_data(string_data), int_data(
 					0), double_data(0), data_type(token::NONE) {
 	}
 	/**
 	 * For INT,BOOL(int_data == 0 == false)
 	 **/
-	Token(int kind, SourceLocation loc, int int_data) :
+	Token(token::TokenKind kind, SourceLocation loc, int int_data) :
 			kind(kind), loc(loc), id(""), string_data(""), int_data(int_data), double_data(
 					0), data_type(token::NONE) {
 	}
 	/**
 	 * For DOUBLE
 	 **/
-	Token(int kind, SourceLocation loc, double double_data) :
+	Token(token::TokenKind kind, SourceLocation loc, double double_data) :
 			kind(kind), loc(loc), id(""), string_data(""), int_data(0), double_data(
 					double_data), data_type(token::NONE) {
 	}
 	/**
 	 * For TYPE_XXX(SCALAR,ARRAY):TYPE_XXX
 	 **/
-	Token(int kind, SourceLocation loc, token::DataType data_type) :
+	Token(token::TokenKind kind, SourceLocation loc, token::DataType data_type) :
 			kind(kind), loc(loc), id(""), string_data(""), int_data(0), double_data(
 					0), data_type(data_type) {
 	}
-	unsigned getKind() const {
+	token::TokenKind getKind() const {
 		return kind;
 	}
 	std::string getKindString() const {
@@ -248,7 +249,7 @@ public:
 	~Token() {
 	}
 private:
-	int kind;
+	token::TokenKind kind;
 	SourceLocation loc;
 	//id for ID tokens
 	std::string id;

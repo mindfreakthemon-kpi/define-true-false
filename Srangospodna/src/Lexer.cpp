@@ -152,6 +152,9 @@ Token* Lexer::scan() {
 		if (nts.compare("while") == 0) {
 			return new Token(token::WHILE, sl);
 		}
+		if (nts.compare("return") == 0) {
+			return new Token(token::RETURN, sl);
+		}
 		//types!!!!
 		if (nts.compare("int") == 0) {
 			return new Token(token::TYPE, sl, token::TYPE_INT);
