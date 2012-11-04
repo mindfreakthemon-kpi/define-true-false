@@ -44,9 +44,8 @@ private:
 	node::Expression *parseMathSignedFactor();
 	node::Expression *parseParenthesesExpression();
 	node::Expression *parseOperand();	
-	node::Expression *parseFuncCallExpression(std::string *name);
-	node::Expression *parseArrayAccessExpression(std::string *name);
-	
+	node::Expression *parseFuncCallExpression(const std::string &name);
+	node::Expression *parseArrayAccessExpression(const std::string &name);
 	
 	Token next_token() {
 		return source[next_index];

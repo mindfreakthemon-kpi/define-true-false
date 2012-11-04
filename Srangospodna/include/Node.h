@@ -10,30 +10,66 @@ class Expression {
 public:	
 	Expression() {}
 	
-	Expression(Expression *leftExpr, Expression *rightExpr, token::TokenKind operation) :
-		operation(operation),
-		leftExpr(leftExpr),
-		rightExpr(rightExpr) {}
-	
-	Expression *getLeftSide() const {
-		return leftExpr;
-	}
-	
-	Expression *getRightSide() const {
-		return rightExpr;
-	}
+	Expression(token::TokenKind operation) :
+		operation(operation) {}
 	
 	token::TokenKind getOperationType() const {
 		return operation;
 	}
 		
-	virtual ~Expression() {}
+	virtual ~Expression() = 0;
+
+private:
+	token::TokenKind operation;
+};
+
+inline Expression::~Expression() {}
+
+class UnaryExpression : public Expression {
+public:
+	UnaryExpression(Expression *expr, token::TokenKind operation) :
+		Expression(operation),
+		expr(expr) {}
+
+	Expression *getExpression() const {
+		return expr;
+	}
+	
+private:
+	Expression *expr;
+};
+
+class BinaryExpression : public Expression {
+public:
+	BinaryExpression(Expression *leftExpr, Expression *rightExpr, token::TokenKind operation) :
+		Expression(operation),
+		leftExpr(leftExpr),
+		rightExpr(rightExpr) {}
+
+	Expression *getLeftExpression() const {
+		return leftExpr;
+	}
+	
+	Expression *getRightExpression() const {
+		return rightExpr;
+	}
 
 private:
 	Expression *leftExpr;
 	Expression *rightExpr;
+};
+
+class ParenthesesExpression : public Expression {
+public:
+	ParenthesesExpression(Expression *expr) :
+		expr(expr) {}
+
+	Expression *getExpression() const {
+		return expr;
+	}
 	
-	token::TokenKind operation;
+private:
+	Expression *expr;
 };
 
 class IntLiteral : public Expression {
@@ -358,11 +394,11 @@ public:
 		
 		ss << " : " << token::dataTypeString(fD->getReturnType()->getDataType());
 		
-		ss << " {\n";		
+		ss << " {";		
 		if(fD->getFuncLocalVarsList().size() > 0) {
 			ss << "var ";
 			dump(fD->getFuncLocalVarsList());
-			ss << ";\n";
+			ss << ";";
 		}
 		
 		dump(fD->getStatementsList());
@@ -393,31 +429,31 @@ public:
 		if(IfStatement *iS = dynamic_cast<IfStatement *>(s)) {
 			ss << "if(";
 			dump(iS->getCondition());
-			ss << ") {\n";
+			ss << ") {";
 			dump(iS->getStatementsListTrue());			
 			if(iS->hasElseBody()) {
-				ss << "} else {\n";
+				ss << "} else {";
 				dump(iS->getStatementsListFalse());
 			}					
-			ss << "}\n";
+			ss << "}";
 		} else if(WhileStatement *wS = dynamic_cast<WhileStatement *>(s)) {
 			ss << "while(";
 			dump(wS->getCondition());
-			ss << ") {\n";
+			ss << ") {";
 			dump(wS->getStatementsList());	
-			ss << "}\n";
+			ss << "}";
 		} else if(ReturnStatement *rS = dynamic_cast<ReturnStatement *>(s)) {
 			ss << "return ";
 			dump(rS->getReturnExpression());
-			ss << ";\n";
+			ss << ";";
 		} else if(AssignmentStatement *aS = dynamic_cast<AssignmentStatement *>(s)) {
 			dump(aS->getLeftExpression());
 			ss << " = ";
 			dump(aS->getRightExpression());
-			ss << ";\n";
+			ss << ";";
 		} else if(ExpressionStatement *eS = dynamic_cast<ExpressionStatement *>(s)) {
 			dump(eS->getExpression());
-			ss << ";\n";
+			ss << ";";
 		}
 	}
 	
@@ -440,15 +476,26 @@ public:
 			ss << aAE->getName() << "[";
 			dump(aAE->getIndexExpression());
 			ss << "]";
-		} else {
-			Expression *eL = e->getLeftSide();
-			Expression *eR = e->getRightSide();
+		} else if(UnaryExpression *uE = dynamic_cast<UnaryExpression *>(e)) {
+			Expression *e = uE->getExpression();
+			
+			ss << token::getSourceString(uE->getOperationType());
+			dump(e);
+		} else if(BinaryExpression *bE = dynamic_cast<BinaryExpression *>(e)) {
+			Expression *eL = bE->getLeftExpression();
+			Expression *eR = bE->getRightExpression();
 			
 			if(eL != NULL)
 				dump(eL);
 				
-			ss << token::getSourceString(e->getOperationType());
-			dump(eR);			
+			ss << token::getSourceString(bE->getOperationType());
+			dump(eR);
+		} else if(ParenthesesExpression *pE = dynamic_cast<ParenthesesExpression *>(e)) {
+			ss << "(";
+			dump(pE->getExpression());
+			ss << ")";
+		} else {
+			assert(false);
 		}
 	}
 	

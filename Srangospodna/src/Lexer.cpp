@@ -88,9 +88,17 @@ Token* Lexer::scan() {
 		return new Token(token::COMMA, sl);
 		//here goes operators
 	case '<':
-		return new Token(token::LESS, sl);
+		if (file_buffer[charsDone + 1] == '=') {
+			charsDone++;
+			return new Token(token::LESS_EQUALS, sl);
+		} else
+			return new Token(token::LESS, sl);
 	case '>':
-		return new Token(token::MORE, sl);
+		if (file_buffer[charsDone + 1] == '=') {
+			charsDone++;
+			return new Token(token::MORE_EQUALS, sl);
+		} else
+			return new Token(token::MORE, sl);
 	case '+':
 		return new Token(token::PLUS, sl);
 	case '-':
@@ -108,9 +116,17 @@ Token* Lexer::scan() {
 		} else
 			return new Token(token::EQUALS, sl);
 	case '&':
-		return new Token(token::AND, sl);
+		if (file_buffer[charsDone + 1] == '&') {
+			charsDone++;
+			return new Token(token::DAND, sl);
+		} else
+			return new Token(token::AND, sl);
 	case '|':
-		return new Token(token::OR, sl);
+		if (file_buffer[charsDone + 1] == '|') {
+			charsDone++;
+			return new Token(token::DOR, sl);
+		} else
+			return new Token(token::OR, sl);
 	case '!':
 		if (file_buffer[charsDone + 1] == '=') {
 			charsDone++;

@@ -3,6 +3,9 @@
 #include <cstdio>
 #define TRACE_MSG fprintf(stdout, "(%s) [%s:%d] here I am\n", \
                           __FUNCTION__, __FILE__, __LINE__)
+                          
+#define OUTMSG(X) fprintf(stdout, "(%s) [%s:%d] %s", \
+                          __FUNCTION__, __FILE__, __LINE__, X)
 
 node::Program *Parser::parse() {
 	std::vector<node::FuncDecl *> r;
@@ -98,7 +101,6 @@ node::FuncDecl *Parser::parseFuncDecl() {
 		}
 	}
 	
-	// rt parentheses
 	consume_token();
 	
 	if(next_kind() != token::COLON) {
@@ -132,7 +134,6 @@ node::FuncDecl *Parser::parseFuncDecl() {
 			return NULL;
 		}
 		
-		// semicolon included
 		consume_token();
 	} else {
 		fLVL = new std::vector<node::VarDecl *>;
@@ -148,9 +149,7 @@ node::FuncDecl *Parser::parseFuncDecl() {
 		return NULL;
 	}
 	
-	// rt_cr bracket included
-	consume_token();
-	
+	consume_token();	
 	return new node::FuncDecl(id.getStringData(), *fPDL, rT, *fLVL, *sL);
 };
 
@@ -238,6 +237,9 @@ node::Statement *Parser::parseIfStatement() {
 	consume_token();
 	std::vector<node::Statement *> *sLT = parseStatementList();
 	
+	if(sLT == NULL)
+		return NULL;
+	
 	if(next_kind() != token::RT_CR_BRACKET) {
 		logger->error(point_token(), "Unexpected ", recognize_token(), ", expected RT_CR_BRACKET");
 		return NULL;
@@ -255,6 +257,9 @@ node::Statement *Parser::parseIfStatement() {
 		
 		consume_token();
 		std::vector<node::Statement *> *sLF = parseStatementList();
+		
+		if(sLF == NULL)
+			return NULL;
 		
 		if(next_kind() != token::RT_CR_BRACKET) {
 			logger->error(point_token(), "Unexpected ", recognize_token(), ", expected RT_CR_BRACKET");
@@ -348,9 +353,7 @@ node::Statement *Parser::parseExpressionOrAssignmentStatement() {
 			return NULL;
 		}
 		
-		// semicolon included
-		consume_token();
-		
+		consume_token();		
 		return new node::AssignmentStatement(bE, bEV);
 	}
 	
@@ -376,7 +379,7 @@ node::Expression *Parser::parseBoolExpression() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -388,6 +391,7 @@ node::Expression *Parser::parseBoolTerm() {
 	token::TokenKind tK;
 	
 	while(next_kind() == token::DAND) {
+		
 		tK = next_kind();
 		consume_token();
 		rightExpr = parseBoolNotFactor();
@@ -395,7 +399,7 @@ node::Expression *Parser::parseBoolTerm() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -409,16 +413,15 @@ node::Expression *Parser::parseBoolNotFactor() {
 		negation = true;
 	}
 	
-	node::Expression *rightExpr = parseBoolRelation();
+	node::Expression *expr = parseBoolRelation();
 	
-	if(rightExpr == NULL)
+	if(expr == NULL)
 		return NULL;
 	
-	if(negation) {
-		rightExpr = new node::Expression(NULL, rightExpr, token::NEGATION);
-	}
+	if(negation)
+		expr = new node::UnaryExpression(expr, token::NEGATION);
 
-	return rightExpr;
+	return expr;
 };
 
 node::Expression *Parser::parseBoolRelation() {
@@ -440,7 +443,7 @@ node::Expression *Parser::parseBoolRelation() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -463,7 +466,7 @@ node::Expression *Parser::parseBinExpression() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -486,7 +489,7 @@ node::Expression *Parser::parseBinTerm() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -500,16 +503,15 @@ node::Expression *Parser::parseBinNotFactor() {
 		negation = true;
 	}
 	
-	node::Expression *rightExpr = parseMathExpression();
+	node::Expression *expr = parseMathExpression();
 	
-	if(rightExpr == NULL)
+	if(expr == NULL)
 		return NULL;
 	
-	if(negation) {
-		rightExpr = new node::Expression(NULL, rightExpr, token::TILDE);
-	}
+	if(negation)
+		expr = new node::UnaryExpression(expr, token::TILDE);
 
-	return rightExpr;
+	return expr;
 };
 
 node::Expression *Parser::parseMathExpression() {
@@ -529,7 +531,7 @@ node::Expression *Parser::parseMathExpression() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -552,7 +554,7 @@ node::Expression *Parser::parseMathTerm() {
 		if(rightExpr == NULL)
 			return NULL;
 		
-		leftExpr = new node::Expression(leftExpr, rightExpr, tK);		
+		leftExpr = new node::BinaryExpression(leftExpr, rightExpr, tK);		
 	}
 	
 	return leftExpr;
@@ -566,16 +568,15 @@ node::Expression *Parser::parseMathSignedFactor() {
 		negation = true;
 	}
 	
-	node::Expression *rightExpr = parseOperand();
+	node::Expression *expr = parseOperand();
 	
-	if(rightExpr == NULL)
+	if(expr == NULL)
 		return NULL;
 	
-	if(negation) {
-		rightExpr = new node::Expression(NULL, rightExpr, token::MINUS);
-	}
+	if(negation)
+		expr = new node::UnaryExpression(expr, token::MINUS);
 
-	return rightExpr;
+	return expr;
 };
 
 node::Expression *Parser::parseParenthesesExpression() {
@@ -592,37 +593,52 @@ node::Expression *Parser::parseParenthesesExpression() {
 		return NULL;
 	}
 	
-	consume_token();	
-	return e;
+	consume_token();
+	// can be replaced by "return e;"
+	// but it's needed for test purposes
+	return new node::ParenthesesExpression(e);
 };
 
 node::Expression *Parser::parseOperand() {
+	uint32_t int_value;
+	double double_value;
+	std::string str_value;
+	bool bool_value;
+	
 	switch(next_kind()) {
 		case token::LF_PARENTHESES:
 			return parseParenthesesExpression();
-		case token::INT:
+		case token::INT: {
+			int_value = next_token().getIntData();
 			consume_token();
-			return new node::IntLiteral(next_token().getIntData());
-		case token::DOUBLE:
+			return new node::IntLiteral(int_value);
+		}
+		case token::DOUBLE: {
+			double_value = next_token().getDoubleData();
 			consume_token();
-			return new node::DoubleLiteral(next_token().getDoubleData());
-		case token::STRING:
+			return new node::DoubleLiteral(double_value);
+		}
+		case token::STRING: {
+			str_value = next_token().getStringData();
 			consume_token();
-			return new node::StringLiteral(next_token().getStringData());
-		//case token::BOOL:
-		//	consume_token();
-		//	return new BoolLiteral(next_token().getBoolData());
+			return new node::StringLiteral(str_value);
+		}
+		case token::BOOL: {
+			bool_value = next_token().getIntData() != 0;
+			consume_token();
+			return new node::BoolLiteral(bool_value);
+		}
 		case token::ID: {
-			std::string name = next_token().getStringData();
+			str_value = next_token().getStringData();
 			consume_token();
 			
 			switch(next_kind()) {
 				case token::LF_PARENTHESES:
-					return parseFuncCallExpression(&name);
+					return parseFuncCallExpression(str_value);
 				case token::LF_SQ_BRACKET:
-					return parseArrayAccessExpression(&name);
+					return parseArrayAccessExpression(str_value);
 				default:
-					return new node::VarReferenceExpression(name);
+					return new node::VarReferenceExpression(str_value);
 			}
 		}
 		default:
@@ -632,7 +648,7 @@ node::Expression *Parser::parseOperand() {
 	}
 };
 
-node::Expression *Parser::parseFuncCallExpression(std::string *name) {
+node::Expression *Parser::parseFuncCallExpression(const std::string &name) {
 	assert(next_kind() == token::LF_PARENTHESES);
 	consume_token();
 	
@@ -640,7 +656,7 @@ node::Expression *Parser::parseFuncCallExpression(std::string *name) {
 	
 	if(next_kind() == token::RT_PARENTHESES) {
 		consume_token();
-		return new node::FuncCallExpression(*name, *args);
+		return new node::FuncCallExpression(name, *args);
 	}
 	
 	node::Expression *e;
@@ -666,10 +682,10 @@ node::Expression *Parser::parseFuncCallExpression(std::string *name) {
 	}
 	
 	consume_token();
-	return new node::FuncCallExpression(*name, *args);
+	return new node::FuncCallExpression(name, *args);
 };
 
-node::Expression *Parser::parseArrayAccessExpression(std::string *name) {
+node::Expression *Parser::parseArrayAccessExpression(const std::string &name) {
 	assert(next_kind() == token::LF_SQ_BRACKET);
 	consume_token();
 	
@@ -684,5 +700,5 @@ node::Expression *Parser::parseArrayAccessExpression(std::string *name) {
 	}
 	
 	consume_token();
-	return new node::ArrayAccessExpression(*name, e);	
+	return new node::ArrayAccessExpression(name, e);	
 };

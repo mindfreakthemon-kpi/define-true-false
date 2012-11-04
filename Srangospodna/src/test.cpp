@@ -130,11 +130,21 @@ TEST(Lexer, FuncDecl) {
 }
 
 TEST(Parser, DefaultTest) {
-	string source = "function name(var1: int[], var2: double, var3: string): void {"
-		"var i: int,"
-			"v: double;"
-		"if(2==2){if(1){} if(0){} if(2==2){} while(val){} } while(foo){}"
-	"}";
+	string source = "function name(var1 : int, var2 : double, var3 : string) : void {"
+"var i : int, v : double;"
+"if(2==2) {"
+"if(1) {"
+"}"
+"if(0) {"
+"}"
+"if(2*2*2*2) {"
+"}"
+"while(5&&5) {"
+"}"
+"}"
+"while(!(!6)&&-5) {"
+"}"
+"}";
 		
 	vector<Token> toks = tokenize(source);
 	node::Program * prog = programize(toks);
@@ -143,6 +153,6 @@ TEST(Parser, DefaultTest) {
 	
 	node::SyntaxDumper dumper;
 	dumper.dump(prog);
-	cout << dumper.getResults() << std::endl;	
+	//std::cout << dumper.getResults() << std::endl;
+	ASSERT_TRUE(source.compare(dumper.getResults()) == 0);
 }
-

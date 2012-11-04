@@ -31,4 +31,3 @@ private:
 
 }
 #endif	/* LEXER_H */
-
