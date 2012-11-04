@@ -30,7 +30,7 @@ node::Program *parse(std::vector<Token> toks, ErrorLoggerWrapper *eLW) {
 	return p.parse();
 }
 
-::testing::AssertionResult parseResult_is(node::Program *program, CapturingErrorLogger *eL, std::string source) {
+::testing::AssertionResult parseResult_isPass(node::Program *program, CapturingErrorLogger *eL, std::string source) {
 	if(program == NULL) {	
 		LoggerRecord lR = eL->getRecords()[0];	
 		return testing::AssertionFailure() << "AST is broken: "
@@ -41,7 +41,7 @@ node::Program *parse(std::vector<Token> toks, ErrorLoggerWrapper *eLW) {
 	dumper.dump(program);
 	
 	if(source.compare(dumper.getResults()) != 0) {
-		return testing::AssertionFailure() << "Source code and reconstructed code does not match!";
+		return testing::AssertionFailure() << "Source code and reconstructed code do not match!";
 			//<< "Here is recostructed code: " << dumper.getResults() << "\n"
 			//<< "Here is source code: " << dumper.getResults();
 	}
@@ -49,7 +49,7 @@ node::Program *parse(std::vector<Token> toks, ErrorLoggerWrapper *eLW) {
 	return testing::AssertionSuccess();
 }
 
-::testing::AssertionResult parseResult_is(node::Program *program, CapturingErrorLogger *eL, unsigned line, unsigned column) {
+::testing::AssertionResult parseResult_isFail(node::Program *program, CapturingErrorLogger *eL, unsigned line, unsigned column) {
 	if(program != NULL) {		
 		return testing::AssertionFailure() << "AST is not broken!";
 	}
@@ -134,7 +134,7 @@ TEST(Parser, DefaultTest) {
 
 	std::vector<Token> tokens = tokenize(source);
 	node::Program *program = parse(tokens, eLW);
-	ASSERT_TRUE(parseResult_is(program, eL, source));
+	ASSERT_TRUE(parseResult_isPass(program, eL, source));
 }
 
 TEST(Parser, FailTest) {
@@ -145,7 +145,7 @@ TEST(Parser, FailTest) {
 	
 	std::vector<Token> tokens = tokenize(source);
 	node::Program *program = parse(tokens, eLW);
-	ASSERT_TRUE(parseResult_is(program, eL, 1, 10));
+	ASSERT_TRUE(parseResult_isFail(program, eL, 1, 10));
 }
 
 TEST(Parser, WrongArrayAccess) {
@@ -174,5 +174,5 @@ TEST(Parser, WrongArrayAccess) {
 
 	std::vector<Token> tokens = tokenize(source);
 	node::Program *program = parse(tokens, eLW);
-	ASSERT_TRUE(parseResult_is(program, eL, 1, 138));
+	ASSERT_TRUE(parseResult_isFail(program, eL, 1, 138));
 }
