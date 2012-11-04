@@ -1,12 +1,5 @@
 #include "Parser.h"
 
-#include <cstdio>
-#define TRACE_MSG fprintf(stdout, "(%s) [%s:%d] here I am\n", \
-                          __FUNCTION__, __FILE__, __LINE__)
-                          
-#define OUTMSG(X) fprintf(stdout, "(%s) [%s:%d] %s", \
-                          __FUNCTION__, __FILE__, __LINE__, X)
-
 node::Program *Parser::parse() {
 	std::vector<node::FuncDecl *> r;
 	node::FuncDecl *fD;
@@ -341,7 +334,7 @@ node::Statement *Parser::parseExpressionOrAssignmentStatement() {
 	if(bE == NULL)
 		return NULL;
 
-	if(next_kind() == token::DEQUALS) {
+	if(next_kind() == token::EQUALS) {
 		consume_token();
 		node::Expression *bEV = parseBoolExpression();
 		

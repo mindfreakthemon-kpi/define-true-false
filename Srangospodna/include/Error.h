@@ -13,6 +13,7 @@ class ErrorLogger {
 public:
 	virtual void error(SourceLocation sl, const std::string &message) = 0;
 	virtual void warning(SourceLocation sl, const std::string &message) = 0;
+	virtual void notice(SourceLocation sl, const std::string &message) = 0;
 
 	virtual ~ErrorLogger() {};
 };
@@ -20,12 +21,62 @@ public:
 class StdoutErrorLogger : public ErrorLogger {
 public:
 	void error(SourceLocation sl, const std::string &message) {
-		std::cout << "Error (" << sl.getLine() << ":" << sl.getColumn() << ")! " << message << std::endl;
+		output("Error", sl, message);
 	}
 	
 	void warning(SourceLocation sl, const std::string &message) {
-		std::cout << "Warning (" << sl.getLine() << ":" << sl.getColumn() << ")! " << message << std::endl;
+		output("Warning", sl, message);
 	}
+	
+	void notice(SourceLocation sl, const std::string &message) {
+		output("Notice", sl, message);
+	}
+private:
+	void output(std::string type, SourceLocation sl, const std::string &message) {
+		std::cout << type << " (" << sl.getLine() << ":" << sl.getColumn() << ")! " << message << std::endl;
+	}
+};
+
+struct LoggerRecord {
+	enum RecordLevel {
+		NOTICE = 1,
+		WARNING,
+		ERROR
+	};
+		
+	RecordLevel level;
+	SourceLocation sl;
+	std::string message;
+};
+
+class CapturingErrorLogger : public ErrorLogger {
+public:	
+	void error(SourceLocation sl, const std::string &message) {
+		save(LoggerRecord::ERROR, sl, message);
+	}
+	
+	void warning(SourceLocation sl, const std::string &message) {
+		save(LoggerRecord::WARNING, sl, message);
+	}
+	
+	void notice(SourceLocation sl, const std::string &message) {
+		save(LoggerRecord::NOTICE, sl, message);
+	}
+	
+	const std::vector<LoggerRecord> &getRecords() {
+		return records;
+	}
+	
+private:
+	void save(LoggerRecord::RecordLevel level, SourceLocation sl, const std::string &message) {
+		LoggerRecord lR;
+		lR.level = level;
+		lR.sl = sl;
+		lR.message = message;
+		records.push_back(lR);
+	}
+	
+	std::vector<LoggerRecord> records;
 };
 
 /* Pure magic */
@@ -57,6 +108,10 @@ public:
 		std::ostringstream ss;
 		append(ss, message_first, message_rest...);
 		eL->warning(sl, ss.str());
+	}
+	
+	ErrorLogger *getErrorLogger() const {
+		return eL;
 	}
 	
 private:

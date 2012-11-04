@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 		tok = lexer.scan();
 		if (tok != NULL) {
 
-			cout << "Token:" << tok->getKind() << " with position:"
+			cout << "Token:" << getKindString(tok->getKind()) << " with position:"
 					<< tok->getLocation().toString() << endl;
 		}
 	} while ((tok == NULL) || tok->getKind() != LT);

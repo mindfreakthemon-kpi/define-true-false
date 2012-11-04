@@ -21,6 +21,10 @@ public:
 		
 	node::Program *parse();
 	
+	ErrorLoggerWrapper *getLogger() const {
+		return logger;
+	}
+	
 private:
 	node::FuncDecl *parseFuncDecl();
 	std::vector<node::VarDecl *> *parseFuncParamDeclList();

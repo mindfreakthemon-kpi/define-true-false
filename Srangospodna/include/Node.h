@@ -7,20 +7,8 @@
 namespace node {
 
 class Expression {
-public:	
-	Expression() {}
-	
-	Expression(token::TokenKind operation) :
-		operation(operation) {}
-	
-	token::TokenKind getOperationType() const {
-		return operation;
-	}
-		
+public:			
 	virtual ~Expression() = 0;
-
-private:
-	token::TokenKind operation;
 };
 
 inline Expression::~Expression() {}
@@ -28,21 +16,26 @@ inline Expression::~Expression() {}
 class UnaryExpression : public Expression {
 public:
 	UnaryExpression(Expression *expr, token::TokenKind operation) :
-		Expression(operation),
+		operation(operation),
 		expr(expr) {}
 
 	Expression *getExpression() const {
 		return expr;
 	}
 	
+	token::TokenKind getOperationType() const {
+		return operation;
+	}
+	
 private:
 	Expression *expr;
+	token::TokenKind operation;
 };
 
 class BinaryExpression : public Expression {
 public:
 	BinaryExpression(Expression *leftExpr, Expression *rightExpr, token::TokenKind operation) :
-		Expression(operation),
+		operation(operation),
 		leftExpr(leftExpr),
 		rightExpr(rightExpr) {}
 
@@ -53,10 +46,15 @@ public:
 	Expression *getRightExpression() const {
 		return rightExpr;
 	}
+	
+	token::TokenKind getOperationType() const {
+		return operation;
+	}
 
 private:
 	Expression *leftExpr;
 	Expression *rightExpr;
+	token::TokenKind operation;
 };
 
 class ParenthesesExpression : public Expression {
