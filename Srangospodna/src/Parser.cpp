@@ -601,22 +601,22 @@ node::Expression *Parser::parseOperand() {
 	switch(next_kind()) {
 		case token::LF_PARENTHESES:
 			return parseParenthesesExpression();
-		case token::INT: {
+		case token::INT_LITERAL: {
 			int_value = next_token().getIntData();
 			consume_token();
 			return new node::IntLiteral(int_value);
 		}
-		case token::DOUBLE: {
+		case token::DOUBLE_LITERAL: {
 			double_value = next_token().getDoubleData();
 			consume_token();
 			return new node::DoubleLiteral(double_value);
 		}
-		case token::STRING: {
+		case token::STRING_LITERAL: {
 			str_value = next_token().getStringData();
 			consume_token();
 			return new node::StringLiteral(str_value);
 		}
-		case token::BOOL: {
+		case token::BOOL_LITERAL: {
 			bool_value = next_token().getIntData() != 0;
 			consume_token();
 			return new node::BoolLiteral(bool_value);

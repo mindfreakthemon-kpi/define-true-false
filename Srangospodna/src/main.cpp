@@ -8,31 +8,31 @@
 
 using namespace std;
 using namespace token;
-using namespace lexer;
 
 int main(int argc, char** argv) {
-	if (argc <= 1) {
-		cout << "Usage: " << argv[0] << " <Filename>" << endl;
-		cin.get();
-		exit(1);
-	}
 
-	char *filename = argv[1];
-
-	string file(filename);
-	//TODO rework this peace of code
-	//vector<Token*> tokens;
-	Lexer lexer(file);
+	Lexer lexer(
+			"function name(var1 : int[], var2 : double, var3 : string) : void {\n"
+				"var2 = 2.12314;\n"
+				"if(var2 >= 2.12){\n"
+					"var3 = \"ololo\";"
+				"};\n"
+				"intval : int;\n"
+				"intval = 23\n"
+			"}");
 	Token * tok = NULL;
+	int i = 0;
 	do {
 		tok = lexer.scan();
 		if (tok != NULL) {
-
-			cout << "Token:" << getKindString(tok->getKind()) << " with position:"
-					<< tok->getLocation().toString() << endl;
+			//ASSERT_TRUE(tok_is(toks[0], token::LF_PARENTHESES, 1, 1));
+			cout << "ASSERT_TRUE(tok_is(toks[" << i << "], token::" << token::getKindString(tok->getKind()) << ", " << tok->getLocation().row << ", " << tok->getLocation().col << "));" << endl;
+			//cout << "Token:" << getKindString(tok->getKind()) << " with position:"
+					//<< tok->getLocation().toString() << endl;
 		}
+		i++;
 	} while ((tok == NULL) || tok->getKind() != LT);
 
-	cin.get();
+	//cin.get();
 	return 0;
 }

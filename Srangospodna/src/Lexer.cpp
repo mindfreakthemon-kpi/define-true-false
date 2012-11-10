@@ -2,9 +2,23 @@
 
 #include <stddef.h>
 #include <iostream>
-
-using namespace lexer;
-
+#include <sstream>
+int strToInt(std::string s)
+{
+	int res;
+	std::stringstream ss;
+	ss << s;
+	ss >> res;
+	return res;
+}
+double strToDouble(std::string s)
+{
+	double res;
+	std::stringstream ss;
+	ss << s;
+	ss >> res;
+	return res;
+}
 Lexer::Lexer(std::string source) :
 		col(0), row(1), charsDone(-1), file_buffer(source) {
 	file_length = source.size();
@@ -13,38 +27,11 @@ Lexer::Lexer(std::string source) :
 Token* Lexer::scan() {
 	//for multi symbol tokens
 	std::string nts;
-	bool done = true;
-	int c;
-	//read character
-	while (done) {
-		charsDone++;
-		col++;
-		if (charsDone >= file_length) {
-			//end of file
-			return new Token(token::LT, SourceLocation(row, col + 1));
-		}
-		//for DOS line endings
-		if (file_buffer[charsDone] == '\r'
-				&& file_buffer[charsDone + 1] == '\n') {
-			row++;
-			col = 1;
-			charsDone = charsDone + 2;
-		}
-		//for *nix line endings
-		if (file_buffer[charsDone] == '\n') {
-			row++;
-			col = 1;
-			charsDone++;
-		}
-		c = file_buffer[charsDone];
-		//remove whitespace
-		if (c != ' ')
-			done = false;
-	}
-
-	//some serious stuff
+	int c = getNextChar();
 	SourceLocation sl = SourceLocation(row, col);
 	switch (c) {
+	case -1 :
+		return new Token(token::LT, SourceLocation(row, col));
 	case '0':
 	case '1':
 	case '2':
@@ -55,19 +42,24 @@ Token* Lexer::scan() {
 	case '7':
 	case '8':
 	case '9': {
-		int value = 0;
-		while ((charsDone < file_length) && file_buffer[charsDone] >= '0'
-				&& file_buffer[charsDone] <= '9') {
-			value *= 10;
-			value += file_buffer[charsDone] - '0';
-			charsDone++;
-			col++;
+		bool isDouble = false;
+		nts.push_back(c);
+		c = lookNextChar();
+		while((c >= '0' && c <= '9') || c == '.')
+		{
+			c = getNextChar();
+			if(c == '.')
+				isDouble = true;
+			nts.push_back(c);
+			c = lookNextChar();
 		}
-		//warning, if no token founded this will cause inf loop
-		charsDone--;
-		col--;
-		return new Token(token::INT, sl, value);
+		if(isDouble)
+			return new Token(token::DOUBLE_LITERAL, sl, strToDouble(nts));
+		else
+			return new Token(token::INT_LITERAL, sl, strToInt(nts));
 	}
+	case '\'':
+		return new Token(token::QUOTE,sl);
 	case '{':
 		return new Token(token::LF_CR_BRACKET, sl);
 	case '}':
@@ -86,16 +78,15 @@ Token* Lexer::scan() {
 		return new Token(token::COLON, sl);
 	case ',':
 		return new Token(token::COMMA, sl);
-		//here goes operators
 	case '<':
-		if (file_buffer[charsDone + 1] == '=') {
-			charsDone++;
+		if (lookNextChar() == '=') {
+			getNextChar();
 			return new Token(token::LESS_EQUALS, sl);
 		} else
 			return new Token(token::LESS, sl);
 	case '>':
-		if (file_buffer[charsDone + 1] == '=') {
-			charsDone++;
+		if (lookNextChar() == '=') {
+			getNextChar();
 			return new Token(token::MORE_EQUALS, sl);
 		} else
 			return new Token(token::MORE, sl);
@@ -110,26 +101,26 @@ Token* Lexer::scan() {
 	case '^':
 		return new Token(token::CARET, sl);
 	case '=':
-		if (file_buffer[charsDone + 1] == '=') {
-			charsDone++;
+		if (lookNextChar() == '=') {
+			getNextChar();
 			return new Token(token::DEQUALS, sl);
 		} else
 			return new Token(token::EQUALS, sl);
 	case '&':
-		if (file_buffer[charsDone + 1] == '&') {
-			charsDone++;
+		if (lookNextChar() == '&') {
+			getNextChar();
 			return new Token(token::DAND, sl);
 		} else
 			return new Token(token::AND, sl);
 	case '|':
-		if (file_buffer[charsDone + 1] == '|') {
-			charsDone++;
+		if (lookNextChar() == '|') {
+			getNextChar();
 			return new Token(token::DOR, sl);
 		} else
 			return new Token(token::OR, sl);
 	case '!':
-		if (file_buffer[charsDone + 1] == '=') {
-			charsDone++;
+		if (lookNextChar() == '=') {
+			getNextChar();
 			return new Token(token::NEQUALS, sl);
 		} else
 			return new Token(token::NEGATION, sl);
@@ -138,24 +129,25 @@ Token* Lexer::scan() {
 		//STRING
 	case '"': {
 		SourceLocation pos(row, col);
-		while (file_buffer[++charsDone] != '"') {
-			nts.push_back(file_buffer[charsDone]);
+		c = getNextChar(false);
+		while (c != '"') {
+			nts.push_back(c);
+			c = getNextChar(false);
 		};
-		col = col + nts.length();
-		return new Token(token::STRING, pos, nts);
+		return new Token(token::STRING_LITERAL, pos, nts);
 	}
 
 	default: {
-		while ((charsDone < file_length)
-				&& (isalnum(file_buffer[charsDone]) != 0
-						|| file_buffer[charsDone] == '_')) {
-			nts.push_back(file_buffer[charsDone]);
-			charsDone++;
-			col++;
+		if(isIdentifierChar(c))
+		{
+			nts.push_back(c);
+			c = lookNextChar(false);
 		}
-		//warning, if no token founded this will cause inf loop
-		charsDone--;
-		col--;
+		while (isIdentifierChar(c)) {
+			c = getNextChar(false);
+			nts.push_back(c);
+			c = lookNextChar(false);
+		}
 		//check if it keyword
 		if (nts.compare("function") == 0) {
 			return new Token(token::FUNCTION, sl);
@@ -175,7 +167,7 @@ Token* Lexer::scan() {
 		if (nts.compare("return") == 0) {
 			return new Token(token::RETURN, sl);
 		}
-		//types!!!!
+		//types
 		if (nts.compare("int") == 0) {
 			return new Token(token::TYPE, sl, token::TYPE_INT);
 		}
@@ -191,9 +183,13 @@ Token* Lexer::scan() {
 		if (nts.compare("void") == 0) {
 			return new Token(token::TYPE, sl, token::TYPE_VOID);
 		}
-		//check if int
-
-		// TODO more keywords !!!
+		//for bool literals
+		if (nts.compare("true") == 0) {
+			return new Token(token::BOOL_LITERAL, sl, true);
+		}
+		if (nts.compare("false") == 0) {
+			return new Token(token::BOOL_LITERAL, sl, false);
+		}
 		//non keyword(id)
 		return new Token(token::ID, sl, nts);
 		break;
@@ -201,3 +197,75 @@ Token* Lexer::scan() {
 	}
 	return NULL;
 }
+
+int Lexer::lookNextChar(bool remSpace) {
+	int c;
+	bool done = true;
+	int localcharsDone = charsDone;
+	//read character
+	while (done) {
+		localcharsDone++;
+		if (localcharsDone >= file_length) {
+			//end of file
+			return -1;
+		}
+		//for DOS line endings
+		if (file_buffer[localcharsDone] == '\r'
+				&& file_buffer[localcharsDone + 1] == '\n') {
+			localcharsDone = localcharsDone + 2;
+		}
+		//for *nix line endings
+		if (file_buffer[localcharsDone] == '\n') {
+			localcharsDone++;
+		}
+		c = file_buffer[localcharsDone];
+		//remove whitespace
+		if(remSpace)
+		{
+			if (c != ' ')
+				done = false;
+		}
+		else
+			done = false;
+
+	}
+	return c;
+}
+
+int Lexer::getNextChar(bool remSpace) {
+	int c;
+	bool done = true;
+	//read character
+	while (done) {
+		charsDone++;
+		col++;
+		if (charsDone >= file_length) {
+			//end of file
+			return -1;
+		}
+		//for DOS line endings
+		if (file_buffer[charsDone] == '\r'
+				&& file_buffer[charsDone + 1] == '\n') {
+			row++;
+			col = 1;
+			charsDone = charsDone + 2;
+		}
+		//for *nix line endings
+		if (file_buffer[charsDone] == '\n') {
+			row++;
+			col = 1;
+			charsDone++;
+		}
+		c = file_buffer[charsDone];
+		//remove whitespace
+		if(remSpace)
+		{
+			if (c != ' ')
+				done = false;
+		}
+		else
+			done = false;
+	}
+	return c;
+}
+
