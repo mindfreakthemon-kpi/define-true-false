@@ -215,5 +215,5 @@ TEST(Parser, WrongArrayAccess) {
 
 	std::vector<Token> tokens = tokenize(source);
 	node::Program *program = parse(tokens, eLW);
-	ASSERT_TRUE(parseResult_isFail(program, eL, 1, 138));
+	ASSERT_TRUE(parseResult_isFail(program, eL, 1, 139));
 }
