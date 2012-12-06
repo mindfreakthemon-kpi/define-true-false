@@ -8,7 +8,13 @@
 #ifndef SEMAN_H_
 #define SEMAN_H_
 
-#include "Node.h";
+namespace node {
+class Program;
+class FuncDecl;
+class VarDecl;
+class Statement;
+class Expression;
+}
 
 namespace Seman {
 
