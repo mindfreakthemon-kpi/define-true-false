@@ -1,18 +1,20 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <sstream>
 #include <vector>
-#include "Seman.h"
+#include <cassert>
+
+#include "Token.h"
+
+namespace Seman {
+class ASTVisitor;
+}
 
 namespace node {
 
 class Expression {
 public:
-	void accept(Seman::Seman s) {
-		s.checkExpression(this);
-	}
-
+	void accept(Seman::ASTVisitor *v);
 	virtual ~Expression() = 0;
 };
 
@@ -21,17 +23,9 @@ inline Expression::~Expression() {
 
 class UnaryExpression: public Expression {
 public:
-	UnaryExpression(Expression *expr, token::TokenKind operation) :
-			operation(operation), expr(expr) {
-	}
-
-	Expression *getExpression() const {
-		return expr;
-	}
-
-	token::TokenKind getOperationType() const {
-		return operation;
-	}
+	UnaryExpression(Expression *expr, token::TokenKind operation);
+	Expression *getExpression() const;
+	token::TokenKind getOperationType() const;
 
 private:
 	Expression *expr;
@@ -41,21 +35,10 @@ private:
 class BinaryExpression: public Expression {
 public:
 	BinaryExpression(Expression *leftExpr, Expression *rightExpr,
-			token::TokenKind operation) :
-			operation(operation), leftExpr(leftExpr), rightExpr(rightExpr) {
-	}
-
-	Expression *getLeftExpression() const {
-		return leftExpr;
-	}
-
-	Expression *getRightExpression() const {
-		return rightExpr;
-	}
-
-	token::TokenKind getOperationType() const {
-		return operation;
-	}
+			token::TokenKind operation);
+	Expression *getLeftExpression() const;
+	Expression *getRightExpression() const;
+	token::TokenKind getOperationType() const;
 
 private:
 	Expression *leftExpr;
@@ -65,13 +48,8 @@ private:
 
 class ParenthesesExpression: public Expression {
 public:
-	ParenthesesExpression(Expression *expr) :
-			expr(expr) {
-	}
-
-	Expression *getExpression() const {
-		return expr;
-	}
+	ParenthesesExpression(Expression *expr);
+	Expression *getExpression() const;
 
 private:
 	Expression *expr;
@@ -79,13 +57,8 @@ private:
 
 class IntLiteral: public Expression {
 public:
-	IntLiteral(uint32_t value) :
-			value(value) {
-	}
-
-	uint32_t getValue() const {
-		return value;
-	}
+	IntLiteral(uint32_t value);
+	uint32_t getValue() const;
 
 private:
 	uint32_t value;
@@ -93,13 +66,8 @@ private:
 
 class DoubleLiteral: public Expression {
 public:
-	DoubleLiteral(double value) :
-			value(value) {
-	}
-
-	double getValue() const {
-		return value;
-	}
+	DoubleLiteral(double value);
+	double getValue() const;
 
 private:
 	double value;
@@ -107,13 +75,8 @@ private:
 
 class StringLiteral: public Expression {
 public:
-	StringLiteral(std::string value) :
-			value(std::move(value)) {
-	}
-
-	const std::string &getValue() const {
-		return value;
-	}
+	StringLiteral(std::string value);
+	const std::string &getValue() const;
 
 private:
 	std::string value;
@@ -121,13 +84,8 @@ private:
 
 class BoolLiteral: public Expression {
 public:
-	BoolLiteral(bool value) :
-			value(value) {
-	}
-
-	bool getValue() const {
-		return value;
-	}
+	BoolLiteral(bool value);
+	bool getValue() const;
 
 private:
 	bool value;
@@ -135,13 +93,8 @@ private:
 
 class VarReferenceExpression: public Expression {
 public:
-	VarReferenceExpression(std::string name) :
-			name(std::move(name)) {
-	}
-
-	const std::string &getName() const {
-		return name;
-	}
+	VarReferenceExpression(std::string name);
+	const std::string &getName() const;
 
 private:
 	std::string name;
@@ -149,17 +102,10 @@ private:
 
 class FuncCallExpression: public Expression {
 public:
-	FuncCallExpression(std::string name, std::vector<Expression *> args) :
-			name(std::move(name)), args(std::move(args)) {
-	}
+	FuncCallExpression(std::string name, std::vector<Expression *> args);
+	const std::string &getName() const;
+	const std::vector<Expression *> &getArguments() const;
 
-	const std::string &getName() const {
-		return name;
-	}
-
-	const std::vector<Expression *> &getArguments() const {
-		return args;
-	}
 private:
 	std::string name;
 	std::vector<Expression *> args;
@@ -167,17 +113,10 @@ private:
 
 class ArrayAccessExpression: public Expression {
 public:
-	ArrayAccessExpression(std::string name, Expression *index) :
-			name(std::move(name)), index(index) {
-	}
+	ArrayAccessExpression(std::string name, Expression *index);
+	const std::string &getName() const;
+	Expression *getIndexExpression() const;
 
-	const std::string &getName() const {
-		return name;
-	}
-
-	Expression *getIndexExpression() const {
-		return index;
-	}
 private:
 	std::string name;
 	Expression * index;
@@ -185,10 +124,7 @@ private:
 
 class Statement {
 public:
-	void accept(Seman::Seman s) {
-		s.checkStatement(this);
-	}
-
+	void accept(Seman::ASTVisitor *v);
 	virtual ~Statement() {
 	}
 };
@@ -196,30 +132,12 @@ public:
 class IfStatement: public Statement {
 public:
 	IfStatement(Expression *condition, std::vector<node::Statement *> sLT,
-			std::vector<node::Statement *> sLF) :
-			condition(condition), sLT(std::move(sLT)), sLF(std::move(sLF)), elseBody(
-					true) {
-	}
-
-	IfStatement(Expression *condition, std::vector<node::Statement *> sLT) :
-			condition(condition), sLT(std::move(sLT)), elseBody(false) {
-	}
-
-	bool hasElseBody() const {
-		return elseBody;
-	}
-
-	Expression *getCondition() const {
-		return condition;
-	}
-
-	const std::vector<node::Statement *> &getStatementsListTrue() const {
-		return sLT;
-	}
-
-	const std::vector<node::Statement *> &getStatementsListFalse() const {
-		return sLF;
-	}
+			std::vector<node::Statement *> sLF);
+	IfStatement(Expression *condition, std::vector<node::Statement *> sLT);
+	bool hasElseBody() const;
+	Expression *getCondition() const;
+	const std::vector<node::Statement *> &getStatementsListTrue() const;
+	const std::vector<node::Statement *> &getStatementsListFalse() const;
 
 private:
 	Expression *condition;
@@ -230,17 +148,9 @@ private:
 
 class WhileStatement: public Statement {
 public:
-	WhileStatement(Expression *condition, std::vector<node::Statement *> sL) :
-			condition(condition), sL(std::move(sL)) {
-	}
-
-	Expression *getCondition() const {
-		return condition;
-	}
-
-	const std::vector<node::Statement *> &getStatementsList() const {
-		return sL;
-	}
+	WhileStatement(Expression *condition, std::vector<node::Statement *> sL);
+	Expression *getCondition() const;
+	const std::vector<node::Statement *> &getStatementsList() const;
 
 private:
 	Expression *condition;
@@ -249,13 +159,8 @@ private:
 
 class ReturnStatement: public Statement {
 public:
-	ReturnStatement(Expression *retExpr) :
-			retExpr(retExpr) {
-	}
-
-	Expression *getReturnExpression() const {
-		return retExpr;
-	}
+	ReturnStatement(Expression *retExpr);
+	Expression *getReturnExpression() const;
 
 private:
 	Expression *retExpr;
@@ -263,17 +168,9 @@ private:
 
 class AssignmentStatement: public Statement {
 public:
-	AssignmentStatement(Expression *leftExpr, Expression *rightExpr) :
-			leftExpr(leftExpr), rightExpr(rightExpr) {
-	}
-
-	Expression *getLeftExpression() const {
-		return leftExpr;
-	}
-
-	Expression *getRightExpression() const {
-		return rightExpr;
-	}
+	AssignmentStatement(Expression *leftExpr, Expression *rightExpr);
+	Expression *getLeftExpression() const;
+	Expression *getRightExpression() const;
 
 private:
 	Expression *leftExpr;
@@ -282,13 +179,8 @@ private:
 
 class ExpressionStatement: public Statement {
 public:
-	ExpressionStatement(Expression *expr) :
-			expr(expr) {
-	}
-
-	Expression *getExpression() const {
-		return expr;
-	}
+	ExpressionStatement(Expression *expr);
+	Expression *getExpression() const;
 
 private:
 	Expression *expr;
@@ -296,51 +188,31 @@ private:
 
 class VarType {
 public:
-	VarType(token::DataType data_type) :
-			data_type(data_type) {
-	}
-
-	token::DataType getDataType() {
-		return data_type;
-	}
-
+	VarType(token::DataType data_type);
+	token::DataType getDataType();
 	virtual ~VarType() {
 	}
+
 private:
 	token::DataType data_type;
 };
 
 class VarArrayType: public VarType {
 public:
-	VarArrayType(token::DataType data_type) :
-			VarType(data_type) {
-	}
+	VarArrayType(token::DataType data_type);
 };
 
 class VarScalarType: public VarType {
 public:
-	VarScalarType(token::DataType data_type) :
-			VarType(data_type) {
-	}
+	VarScalarType(token::DataType data_type);
 };
 
 class VarDecl {
 public:
-	VarDecl(std::string name, VarType *vT) :
-			name(std::move(name)), vT(vT) {
-	}
-
-	const std::string &getName() const {
-		return name;
-	}
-
-	VarType *getVarType() const {
-		return vT;
-	}
-
-	void accept(Seman::Seman s) {
-		s.checkVarDecl(this);
-	}
+	VarDecl(std::string name, VarType *vT);
+	const std::string &getName() const;
+	VarType *getVarType() const;
+	void accept(Seman::ASTVisitor *v);
 
 private:
 	std::string name;
@@ -350,34 +222,13 @@ private:
 class FuncDecl {
 public:
 	FuncDecl(std::string name, std::vector<VarDecl *> fPDL, VarType *rT,
-			std::vector<VarDecl *> fLVL, std::vector<Statement *> sL) :
-			name(std::move(name)), fPDL(std::move(fPDL)), rT(rT), fLVL(
-					std::move(fLVL)), sL(std::move(sL)) {
-	}
-
-	const std::string & getName() const {
-		return name;
-	}
-
-	const std::vector<VarDecl *> &getFuncParamsDeclList() const {
-		return fPDL;
-	}
-
-	VarType *getReturnType() const {
-		return rT;
-	}
-
-	const std::vector<VarDecl *> &getFuncLocalVarsList() const {
-		return fLVL;
-	}
-
-	const std::vector<node::Statement *> &getStatementsList() const {
-		return sL;
-	}
-
-	void accept(Seman::Seman s) {
-		s.checkFuncDecl(this);
-	}
+			std::vector<VarDecl *> fLVL, std::vector<Statement *> sL);
+	const std::string & getName() const;
+	const std::vector<VarDecl *> &getFuncParamsDeclList() const;
+	VarType *getReturnType() const;
+	const std::vector<VarDecl *> &getFuncLocalVarsList() const;
+	const std::vector<node::Statement *> &getStatementsList() const;
+	void accept(Seman::ASTVisitor *v);
 
 private:
 	std::string name;
@@ -389,178 +240,12 @@ private:
 
 class Program {
 public:
-	Program(std::vector<FuncDecl *> fDL) :
-			fDL(std::move(fDL)) {
-	}
-
-	const std::vector<FuncDecl *> &getFuncDeclList() const {
-		return fDL;
-	}
-
-	void accept(Seman::Seman s) {
-		s.checkProgram(this);
-	}
+	Program(std::vector<FuncDecl *> fDL);
+	const std::vector<FuncDecl *> &getFuncDeclList() const;
+	void accept(Seman::ASTVisitor *v);
 
 private:
 	std::vector<FuncDecl*> fDL; // function declaration list
-};
-
-class SyntaxDumper {
-public:
-	SyntaxDumper() :
-			ss() {
-	}
-
-	void dump(Program *p) {
-		std::vector<FuncDecl *> fDL = p->getFuncDeclList();
-
-		for (std::vector<FuncDecl *>::iterator it = fDL.begin();
-				it != fDL.end(); ++it) {
-			dump(*it);
-		}
-	}
-
-	void dump(FuncDecl *fD) {
-		ss << "function " << fD->getName();
-
-		ss << "(";
-		dump(fD->getFuncParamsDeclList());
-		ss << ")";
-
-		ss << " : "
-				<< token::dataTypeString(fD->getReturnType()->getDataType());
-
-		ss << " {";
-		if (fD->getFuncLocalVarsList().size() > 0) {
-			ss << "var ";
-			dump(fD->getFuncLocalVarsList());
-			ss << ";";
-		}
-
-		dump(fD->getStatementsList());
-		ss << "}";
-	}
-
-	void dump(const std::vector<VarDecl *> &fPDL) {
-		for (std::vector<VarDecl *>::const_iterator it = fPDL.begin();
-				it != fPDL.end(); ++it) {
-			dump(*it);
-
-			if ((it + 1) != fPDL.end()) {
-				ss << ", ";
-			}
-		}
-	}
-
-	void dump(VarDecl *vD) {
-		ss << vD->getName() << " : "
-				<< token::dataTypeString(vD->getVarType()->getDataType());
-	}
-
-	void dump(const std::vector<Statement *> &sL) {
-		for (std::vector<Statement *>::const_iterator it = sL.begin();
-				it != sL.end(); ++it) {
-			dump(*it);
-		}
-	}
-
-	void dump(Statement *s) {
-		if (IfStatement *iS = dynamic_cast<IfStatement *>(s)) {
-			ss << "if(";
-			dump(iS->getCondition());
-			ss << ") {";
-			dump(iS->getStatementsListTrue());
-			if (iS->hasElseBody()) {
-				ss << "} else {";
-				dump(iS->getStatementsListFalse());
-			}
-			ss << "}";
-		} else if (WhileStatement *wS = dynamic_cast<WhileStatement *>(s)) {
-			ss << "while(";
-			dump(wS->getCondition());
-			ss << ") {";
-			dump(wS->getStatementsList());
-			ss << "}";
-		} else if (ReturnStatement *rS = dynamic_cast<ReturnStatement *>(s)) {
-			ss << "return ";
-			dump(rS->getReturnExpression());
-			ss << ";";
-		} else if (AssignmentStatement *aS =
-				dynamic_cast<AssignmentStatement *>(s)) {
-			dump(aS->getLeftExpression());
-			ss << " = ";
-			dump(aS->getRightExpression());
-			ss << ";";
-		} else if (ExpressionStatement *eS =
-				dynamic_cast<ExpressionStatement *>(s)) {
-			dump(eS->getExpression());
-			ss << ";";
-		}
-	}
-
-	void dump(Expression *e) {
-		if (IntLiteral *iL = dynamic_cast<IntLiteral *>(e)) {
-			ss << iL->getValue();
-		} else if (DoubleLiteral *dL = dynamic_cast<DoubleLiteral *>(e)) {
-			ss << dL->getValue();
-		} else if (StringLiteral *sL = dynamic_cast<StringLiteral *>(e)) {
-			ss << sL->getValue();
-		} else if (BoolLiteral *bL = dynamic_cast<BoolLiteral *>(e)) {
-			ss << bL->getValue();
-		} else if (VarReferenceExpression *vRE =
-				dynamic_cast<VarReferenceExpression *>(e)) {
-			ss << vRE->getName();
-		} else if (FuncCallExpression *fCE =
-				dynamic_cast<FuncCallExpression *>(e)) {
-			ss << fCE->getName() << "(";
-			dump(fCE->getArguments());
-			ss << ")";
-		} else if (ArrayAccessExpression *aAE =
-				dynamic_cast<ArrayAccessExpression *>(e)) {
-			ss << aAE->getName() << "[";
-			dump(aAE->getIndexExpression());
-			ss << "]";
-		} else if (UnaryExpression *uE = dynamic_cast<UnaryExpression *>(e)) {
-			Expression *e = uE->getExpression();
-
-			ss << token::getSourceString(uE->getOperationType());
-			dump(e);
-		} else if (BinaryExpression *bE = dynamic_cast<BinaryExpression *>(e)) {
-			Expression *eL = bE->getLeftExpression();
-			Expression *eR = bE->getRightExpression();
-
-			if (eL != NULL)
-				dump(eL);
-
-			ss << token::getSourceString(bE->getOperationType());
-			dump(eR);
-		} else if (ParenthesesExpression *pE =
-				dynamic_cast<ParenthesesExpression *>(e)) {
-			ss << "(";
-			dump(pE->getExpression());
-			ss << ")";
-		} else {
-			assert(false);
-		}
-	}
-
-	void dump(const std::vector<Expression *> &fAL) {
-		for (std::vector<Expression *>::const_iterator it = fAL.begin();
-				it != fAL.end(); ++it) {
-			dump(*it);
-
-			if ((it + 1) != fAL.end()) {
-				ss << ", ";
-			}
-		}
-	}
-
-	std::string getResults() {
-		return ss.str();
-	}
-
-private:
-	std::stringstream ss;
 };
 
 }

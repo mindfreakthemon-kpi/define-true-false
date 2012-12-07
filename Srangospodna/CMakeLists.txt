@@ -9,12 +9,16 @@ include_directories(
 
 add_executable(dtf
     src/main.cpp
-		src/Lexer.cpp)
+		src/Lexer.cpp
+		src/Node.cpp
+		src/Seman.cpp)
 				
 add_executable(dtf_test
     src/test.cpp
     		src/Lexer.cpp
-		src/Parser.cpp)
+		src/Parser.cpp
+		src/Node.cpp
+		src/Seman.cpp)
 
 target_link_libraries(dtf gtest gtest_main)
 target_link_libraries(dtf_test gtest gtest_main)

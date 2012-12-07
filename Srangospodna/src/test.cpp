@@ -6,6 +6,7 @@
 
 #include "Lexer.h"
 #include "Parser.h"
+#include "Seman.h"
 
 namespace {
 
@@ -35,10 +36,10 @@ node::Program *parse(std::vector<Token> toks, ErrorLoggerWrapper *eLW) {
 			<< lR.message << " at " << lR.sl.getLine() << ":" << lR.sl.getColumn();
 	}
 	
-	node::SyntaxDumper dumper;
-	dumper.dump(program);
-	
-	if(source.compare(dumper.getResults()) != 0) {
+	Seman::Sema sema;
+	sema.checkAll(program);
+
+	if(source.compare(sema.getSyntaxDumperResults()) != 0) {
 		return testing::AssertionFailure() << "Source code and reconstructed code do not match!";
 			//<< "Here is recostructed code: " << dumper.getResults() << "\n"
 			//<< "Here is source code: " << dumper.getResults();
