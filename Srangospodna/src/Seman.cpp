@@ -63,44 +63,42 @@ void ASTVisitor::checkVarDecl(node::VarDecl *vD) {
 void ASTVisitor::checkStatementList(const std::vector<node::Statement *> &sL) {
 	for (std::vector<node::Statement *>::const_iterator it = sL.begin();
 			it != sL.end(); ++it) {
-		checkStatement(*it);
+		sL.at(it - sL.begin())->accept(this);
 	}
 }
 
-void ASTVisitor::checkStatement(node::Statement *s) {
-	if (node::IfStatement *iS = dynamic_cast<node::IfStatement *>(s)) {
-		ss << "if(";
-		iS->getCondition()->accept(this);
-		ss << ") {";
-		checkStatementList(iS->getStatementsListTrue());
-		if (iS->hasElseBody()) {
-			ss << "} else {";
-			checkStatementList(iS->getStatementsListFalse());
-		}
-		ss << "}";
-	} else if (node::WhileStatement *wS =
-			dynamic_cast<node::WhileStatement *>(s)) {
-		ss << "while(";
-		wS->getCondition()->accept(this);
-		ss << ") {";
-		checkStatementList(wS->getStatementsList());
-		ss << "}";
-	} else if (node::ReturnStatement *rS =
-			dynamic_cast<node::ReturnStatement *>(s)) {
-		ss << "return ";
-		rS->getReturnExpression()->accept(this);
-		ss << ";";
-	} else if (node::AssignmentStatement *aS =
-			dynamic_cast<node::AssignmentStatement *>(s)) {
-		aS->getLeftExpression()->accept(this);
-		ss << " = ";
-		aS->getRightExpression()->accept(this);
-		ss << ";";
-	} else if (node::ExpressionStatement *eS =
-			dynamic_cast<node::ExpressionStatement *>(s)) {
-		eS->getExpression()->accept(this);
-		ss << ";";
+void ASTVisitor::checkIfStatement(node::IfStatement *s) {
+	ss << "if(";
+	s->getCondition()->accept(this);
+	ss << ") {";
+	checkStatementList(s->getStatementsListTrue());
+	if (s->hasElseBody()) {
+		ss << "} else {";
+		checkStatementList(s->getStatementsListFalse());
 	}
+	ss << "}";
+}
+void ASTVisitor::checkWhileStatement(node::WhileStatement *s) {
+	ss << "while(";
+	s->getCondition()->accept(this);
+	ss << ") {";
+	checkStatementList(s->getStatementsList());
+	ss << "}";
+}
+void ASTVisitor::checkReturnStatement(node::ReturnStatement *s) {
+	ss << "return ";
+	s->getReturnExpression()->accept(this);
+	ss << ";";
+}
+void ASTVisitor::checkAssignmentStatement(node::AssignmentStatement *s) {
+	s->getLeftExpression()->accept(this);
+	ss << " = ";
+	s->getRightExpression()->accept(this);
+	ss << ";";
+}
+void ASTVisitor::checkExpressionStatement(node::ExpressionStatement *s) {
+	s->getExpression()->accept(this);
+	ss << ";";
 }
 
 void ASTVisitor::checkUnaryExpression(node::UnaryExpression *e) {
@@ -153,7 +151,7 @@ void ASTVisitor::checkExpressionList(
 		const std::vector<node::Expression *> &fAL) {
 	for (std::vector<node::Expression *>::const_iterator it = fAL.begin();
 			it != fAL.end(); ++it) {
-		fAL.at(it-fAL.begin())->accept(this);
+		fAL.at(it - fAL.begin())->accept(this);
 		if ((it + 1) != fAL.end()) {
 			ss << ", ";
 		}

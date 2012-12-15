@@ -210,7 +210,7 @@ private:
 
 class Statement {
 public:
-	void accept(Seman::ASTVisitor *v);
+	virtual void accept(Seman::ASTVisitor *v) = 0;
 
 	virtual ~Statement() {
 	}
@@ -244,6 +244,8 @@ public:
 		return sLF;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	Expression *condition;
 	std::vector<node::Statement *> sLT;
@@ -265,6 +267,8 @@ public:
 		return sL;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	Expression *condition;
 	std::vector<node::Statement *> sL;
@@ -279,6 +283,8 @@ public:
 	Expression *getReturnExpression() const {
 		return retExpr;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	Expression *retExpr;
@@ -298,6 +304,8 @@ public:
 		return rightExpr;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	Expression *leftExpr;
 	Expression *rightExpr;
@@ -312,6 +320,8 @@ public:
 	Expression *getExpression() const {
 		return expr;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	Expression *expr;

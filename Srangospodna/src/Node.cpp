@@ -50,8 +50,24 @@ void ArrayAccessExpression::accept(Seman::ASTVisitor *v) {
 	v->checkArrayAccessExpression(this);
 }
 
-void Statement::accept(Seman::ASTVisitor *v) {
-	v->checkStatement(this);
+void IfStatement::accept(Seman::ASTVisitor *v) {
+	v->checkIfStatement(this);
+}
+
+void WhileStatement::accept(Seman::ASTVisitor *v) {
+	v->checkWhileStatement(this);
+}
+
+void ReturnStatement::accept(Seman::ASTVisitor *v) {
+	v->checkReturnStatement(this);
+}
+
+void AssignmentStatement::accept(Seman::ASTVisitor *v) {
+	v->checkAssignmentStatement(this);
+}
+
+void ExpressionStatement::accept(Seman::ASTVisitor *v) {
+	v->checkExpressionStatement(this);
 }
 
 void VarDecl::accept(Seman::ASTVisitor *v) {
