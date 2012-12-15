@@ -10,11 +10,11 @@
 
 using namespace Seman;
 
-SyntaxDumper::SyntaxDumper() :
+ASTVisitor::ASTVisitor() :
 		ss() {
 }
 
-void SyntaxDumper::checkProgram(node::Program *p) {
+void ASTVisitor::checkProgram(node::Program *p) {
 	std::vector<node::FuncDecl *> fDL = p->getFuncDeclList();
 
 	for (std::vector<node::FuncDecl *>::iterator it = fDL.begin();
@@ -23,7 +23,7 @@ void SyntaxDumper::checkProgram(node::Program *p) {
 	}
 }
 
-void SyntaxDumper::checkFuncDecl(node::FuncDecl *fD) {
+void ASTVisitor::checkFuncDecl(node::FuncDecl *fD) {
 	ss << "function " << fD->getName();
 
 	ss << "(";
@@ -43,7 +43,7 @@ void SyntaxDumper::checkFuncDecl(node::FuncDecl *fD) {
 	ss << "}";
 }
 
-void SyntaxDumper::checkVarDeclList(const std::vector<node::VarDecl *> &fPDL) {
+void ASTVisitor::checkVarDeclList(const std::vector<node::VarDecl *> &fPDL) {
 	for (std::vector<node::VarDecl *>::const_iterator it = fPDL.begin();
 			it != fPDL.end(); ++it) {
 		checkVarDecl(*it);
@@ -54,12 +54,12 @@ void SyntaxDumper::checkVarDeclList(const std::vector<node::VarDecl *> &fPDL) {
 	}
 }
 
-void SyntaxDumper::checkVarDecl(node::VarDecl *vD) {
+void ASTVisitor::checkVarDecl(node::VarDecl *vD) {
 	ss << vD->getName() << " : "
 			<< token::dataTypeString(vD->getVarType()->getDataType());
 }
 
-void SyntaxDumper::checkStatementList(
+void ASTVisitor::checkStatementList(
 		const std::vector<node::Statement *> &sL) {
 	for (std::vector<node::Statement *>::const_iterator it = sL.begin();
 			it != sL.end(); ++it) {
@@ -67,7 +67,7 @@ void SyntaxDumper::checkStatementList(
 	}
 }
 
-void SyntaxDumper::checkStatement(node::Statement *s) {
+void ASTVisitor::checkStatement(node::Statement *s) {
 	if (node::IfStatement *iS = dynamic_cast<node::IfStatement *>(s)) {
 		ss << "if(";
 		checkExpression(iS->getCondition());
@@ -103,7 +103,7 @@ void SyntaxDumper::checkStatement(node::Statement *s) {
 	}
 }
 
-void SyntaxDumper::checkExpression(node::Expression *e) {
+void ASTVisitor::checkExpression(node::Expression *e) {
 	if (node::IntLiteral *iL = dynamic_cast<node::IntLiteral *>(e)) {
 		ss << iL->getValue();
 	} else if (node::DoubleLiteral *dL = dynamic_cast<node::DoubleLiteral *>(e)) {
@@ -151,7 +151,7 @@ void SyntaxDumper::checkExpression(node::Expression *e) {
 	}
 }
 
-void SyntaxDumper::checkExpressionList(
+void ASTVisitor::checkExpressionList(
 		const std::vector<node::Expression *> &fAL) {
 	for (std::vector<node::Expression *>::const_iterator it = fAL.begin();
 			it != fAL.end(); ++it) {
@@ -163,12 +163,12 @@ void SyntaxDumper::checkExpressionList(
 	}
 }
 
-std::string SyntaxDumper::getResults() {
+std::string ASTVisitor::getResults() {
 	return ss.str();
 }
 
 void Sema::checkAll(node::Program *p) {
-	sD = new SyntaxDumper();
+	sD = new ASTVisitor();
 	p->accept(sD);
 }
 

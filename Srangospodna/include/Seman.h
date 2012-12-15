@@ -24,20 +24,7 @@ namespace Seman {
 
 class ASTVisitor {
 public:
-	virtual void checkProgram(node::Program *p) = 0;
-	virtual void checkFuncDecl(node::FuncDecl *fD) = 0;
-	virtual void checkVarDecl(node::VarDecl *vD) = 0;
-	virtual void checkStatement(node::Statement *s) = 0;
-	virtual void checkExpression(node::Expression *e) = 0;
-	virtual ~ASTVisitor() = 0;
-};
-
-inline ASTVisitor::~ASTVisitor() {
-}
-
-class SyntaxDumper: public ASTVisitor {
-public:
-	SyntaxDumper();
+	ASTVisitor();
 	virtual void checkProgram(node::Program *p);
 	virtual void checkFuncDecl(node::FuncDecl *fD);
 	virtual void checkVarDecl(node::VarDecl *vD);
@@ -47,16 +34,20 @@ public:
 	void checkStatementList(const std::vector<node::Statement *> &sL);
 	void checkExpressionList(const std::vector<node::Expression *> &fAL);
 	std::string getResults();
+	virtual ~ASTVisitor();
 private:
 	std::stringstream ss;
 };
+
+inline ASTVisitor::~ASTVisitor(){
+}
 
 class Sema {
 public:
 	void checkAll(node::Program *p);
 	std::string getSyntaxDumperResults();
 private:
-	SyntaxDumper *sD;
+	ASTVisitor *sD;
 };
 }
 
