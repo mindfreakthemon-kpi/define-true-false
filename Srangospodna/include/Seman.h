@@ -42,12 +42,23 @@ private:
 inline ASTVisitor::~ASTVisitor(){
 }
 
+class DuplicatesCheck : public ASTVisitor {
+public:
+	DuplicatesCheck() : ASTVisitor(){}
+	virtual void checkProgram(node::Program *p);
+	virtual void checkFuncDecl(node::FuncDecl *fD);
+	void checkVarDeclList(const std::vector<node::VarDecl *> &fPDL);
+private:
+	std::stringstream ss;
+};
+
 class Sema {
 public:
 	void checkAll(node::Program *p);
 	std::string getSyntaxDumperResults();
 private:
 	ASTVisitor *sD;
+	DuplicatesCheck *dC;
 };
 }
 

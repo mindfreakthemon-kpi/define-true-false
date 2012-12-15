@@ -7,6 +7,7 @@
 
 #include "Seman.h"
 #include "Node.h"
+#include <iostream>
 
 using namespace Seman;
 
@@ -59,8 +60,7 @@ void ASTVisitor::checkVarDecl(node::VarDecl *vD) {
 			<< token::dataTypeString(vD->getVarType()->getDataType());
 }
 
-void ASTVisitor::checkStatementList(
-		const std::vector<node::Statement *> &sL) {
+void ASTVisitor::checkStatementList(const std::vector<node::Statement *> &sL) {
 	for (std::vector<node::Statement *>::const_iterator it = sL.begin();
 			it != sL.end(); ++it) {
 		checkStatement(*it);
@@ -167,9 +167,52 @@ std::string ASTVisitor::getResults() {
 	return ss.str();
 }
 
+void DuplicatesCheck::checkProgram(node::Program *p) {
+	std::vector<node::FuncDecl *> fDL = p->getFuncDeclList();
+
+	for (std::vector<node::FuncDecl *>::iterator it1 = fDL.begin();
+			it1 != fDL.end(); ++it1) {
+		checkFuncDecl(*it1);
+		std::string fN = dynamic_cast<node::FuncDecl *>(*it1)->getName();
+		for (std::vector<node::FuncDecl *>::iterator it2 = fDL.begin();
+				it2 != fDL.end(); ++it2) {
+			if (it1 != it2
+					&& fN.compare(
+							dynamic_cast<node::FuncDecl *>(*it2)->getName())
+							== 0) {
+				std::cout << "Duplicate function  name found: " << fN << std::endl;
+			}
+		}
+	}
+}
+
+void DuplicatesCheck::checkFuncDecl(node::FuncDecl *fD) {
+	checkVarDeclList(fD->getFuncParamsDeclList());
+	checkVarDeclList(fD->getFuncLocalVarsList());
+}
+
+void DuplicatesCheck::checkVarDeclList(
+		const std::vector<node::VarDecl *> &fPDL) {
+	for (std::vector<node::VarDecl *>::const_iterator it1 = fPDL.begin();
+			it1 != fPDL.end(); ++it1) {
+		std::string vN = dynamic_cast<node::VarDecl *>(*it1)->getName();
+		for (std::vector<node::VarDecl *>::const_iterator it2 = fPDL.begin();
+				it2 != fPDL.end(); ++it2) {
+			if (it1 != it2
+					&& vN.compare(
+							dynamic_cast<node::VarDecl *>(*it2)->getName())
+							== 0) {
+				std::cout << "Duplicate variable name found: " << vN << std::endl;
+			}
+		}
+	}
+}
+
 void Sema::checkAll(node::Program *p) {
 	sD = new ASTVisitor();
+	dC = new DuplicatesCheck();
 	p->accept(sD);
+	p->accept(dC);
 }
 
 std::string Sema::getSyntaxDumperResults() {
