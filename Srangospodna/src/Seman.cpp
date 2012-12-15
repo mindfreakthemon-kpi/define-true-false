@@ -168,13 +168,10 @@ void DuplicatesCheck::checkProgram(node::Program *p) {
 	for (std::vector<node::FuncDecl *>::iterator it1 = fDL.begin();
 			it1 != fDL.end(); ++it1) {
 		checkFuncDecl(*it1);
-		std::string fN = dynamic_cast<node::FuncDecl *>(*it1)->getName();
-		for (std::vector<node::FuncDecl *>::iterator it2 = fDL.begin();
+		std::string fN = (*it1)->getName();
+		for (std::vector<node::FuncDecl *>::iterator it2 = it1;
 				it2 != fDL.end(); ++it2) {
-			if (it1 != it2
-					&& fN.compare(
-							dynamic_cast<node::FuncDecl *>(*it2)->getName())
-							== 0) {
+			if (it1 != it2 && (*it2)->getName() == fN) {
 				std::cout << "Duplicate function  name found: " << fN
 						<< std::endl;
 			}
@@ -191,13 +188,10 @@ void DuplicatesCheck::checkVarDeclList(
 		const std::vector<node::VarDecl *> &fPDL) {
 	for (std::vector<node::VarDecl *>::const_iterator it1 = fPDL.begin();
 			it1 != fPDL.end(); ++it1) {
-		std::string vN = dynamic_cast<node::VarDecl *>(*it1)->getName();
-		for (std::vector<node::VarDecl *>::const_iterator it2 = fPDL.begin();
+		std::string vN = (*it1)->getName();
+		for (std::vector<node::VarDecl *>::const_iterator it2 = it1;
 				it2 != fPDL.end(); ++it2) {
-			if (it1 != it2
-					&& vN.compare(
-							dynamic_cast<node::VarDecl *>(*it2)->getName())
-							== 0) {
+			if (it1 != it2 && (*it2)->getName() == vN) {
 				std::cout << "Duplicate variable name found: " << vN
 						<< std::endl;
 			}
