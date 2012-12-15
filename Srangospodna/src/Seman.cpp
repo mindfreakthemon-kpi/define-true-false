@@ -172,8 +172,7 @@ void DuplicatesCheck::checkProgram(node::Program *p) {
 		for (std::vector<node::FuncDecl *>::iterator it2 = it1;
 				it2 != fDL.end(); ++it2) {
 			if (it1 != it2 && (*it2)->getName() == fN) {
-				std::cout << "Duplicate function  name found: " << fN
-						<< std::endl;
+				logger->error((*it2)->getSourceLocation(), "Duplicate function name found: ", fN);
 			}
 		}
 	}
@@ -192,8 +191,7 @@ void DuplicatesCheck::checkVarDeclList(
 		for (std::vector<node::VarDecl *>::const_iterator it2 = it1;
 				it2 != fPDL.end(); ++it2) {
 			if (it1 != it2 && (*it2)->getName() == vN) {
-				std::cout << "Duplicate variable name found: " << vN
-						<< std::endl;
+				logger->error((*it2)->getSourceLocation(), "Duplicate variable name found: ", vN);
 			}
 		}
 	}

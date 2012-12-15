@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include "Error.h"
 
 namespace node {
 class Program;
@@ -67,17 +68,22 @@ private:
 	std::stringstream ss;
 };
 
-inline ASTVisitor::~ASTVisitor(){
+inline ASTVisitor::~ASTVisitor() {
 }
 
-class DuplicatesCheck : public ASTVisitor {
+class DuplicatesCheck: public ASTVisitor {
 public:
-	DuplicatesCheck() : ASTVisitor(){}
+	DuplicatesCheck() :
+			ASTVisitor() {
+		StdoutErrorLogger *eL = new StdoutErrorLogger();
+		logger = new ErrorLoggerWrapper(eL);
+	}
 	virtual void checkProgram(node::Program *p);
 	virtual void checkFuncDecl(node::FuncDecl *fD);
 	void checkVarDeclList(const std::vector<node::VarDecl *> &fPDL);
 private:
 	std::stringstream ss;
+	ErrorLoggerWrapper *logger;
 };
 
 class Sema {
