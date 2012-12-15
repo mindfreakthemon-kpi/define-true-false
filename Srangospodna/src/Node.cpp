@@ -10,8 +10,44 @@
 
 using namespace node;
 
-void Expression::accept(Seman::ASTVisitor *v) {
-	v->checkExpression(this);
+void UnaryExpression::accept(Seman::ASTVisitor *v) {
+	v->checkUnaryExpression(this);
+}
+
+void BinaryExpression::accept(Seman::ASTVisitor *v) {
+	v->checkBinaryExpression(this);
+}
+
+void ParenthesesExpression::accept(Seman::ASTVisitor *v) {
+	v->checkParenthesesExpression(this);
+}
+
+void IntLiteral::accept(Seman::ASTVisitor *v) {
+	v->checkIntLiteral(this);
+}
+
+void DoubleLiteral::accept(Seman::ASTVisitor *v) {
+	v->checkDoubleLiteral(this);
+}
+
+void StringLiteral::accept(Seman::ASTVisitor *v) {
+	v->checkStringLiteral(this);
+}
+
+void BoolLiteral::accept(Seman::ASTVisitor *v) {
+	v->checkBoolLiteral(this);
+}
+
+void VarReferenceExpression::accept(Seman::ASTVisitor *v) {
+	v->checkVarReferenceExpression(this);
+}
+
+void FuncCallExpression::accept(Seman::ASTVisitor *v) {
+	v->checkFuncCallExpression(this);
+}
+
+void ArrayAccessExpression::accept(Seman::ASTVisitor *v) {
+	v->checkArrayAccessExpression(this);
 }
 
 void Statement::accept(Seman::ASTVisitor *v) {

@@ -70,7 +70,7 @@ void ASTVisitor::checkStatementList(const std::vector<node::Statement *> &sL) {
 void ASTVisitor::checkStatement(node::Statement *s) {
 	if (node::IfStatement *iS = dynamic_cast<node::IfStatement *>(s)) {
 		ss << "if(";
-		checkExpression(iS->getCondition());
+		iS->getCondition()->accept(this);
 		ss << ") {";
 		checkStatementList(iS->getStatementsListTrue());
 		if (iS->hasElseBody()) {
@@ -81,82 +81,79 @@ void ASTVisitor::checkStatement(node::Statement *s) {
 	} else if (node::WhileStatement *wS =
 			dynamic_cast<node::WhileStatement *>(s)) {
 		ss << "while(";
-		checkExpression(wS->getCondition());
+		wS->getCondition()->accept(this);
 		ss << ") {";
 		checkStatementList(wS->getStatementsList());
 		ss << "}";
 	} else if (node::ReturnStatement *rS =
 			dynamic_cast<node::ReturnStatement *>(s)) {
 		ss << "return ";
-		checkExpression(rS->getReturnExpression());
+		rS->getReturnExpression()->accept(this);
 		ss << ";";
 	} else if (node::AssignmentStatement *aS =
 			dynamic_cast<node::AssignmentStatement *>(s)) {
-		checkExpression(aS->getLeftExpression());
+		aS->getLeftExpression()->accept(this);
 		ss << " = ";
-		checkExpression(aS->getRightExpression());
+		aS->getRightExpression()->accept(this);
 		ss << ";";
 	} else if (node::ExpressionStatement *eS =
 			dynamic_cast<node::ExpressionStatement *>(s)) {
-		checkExpression(eS->getExpression());
+		eS->getExpression()->accept(this);
 		ss << ";";
 	}
 }
 
-void ASTVisitor::checkExpression(node::Expression *e) {
-	if (node::IntLiteral *iL = dynamic_cast<node::IntLiteral *>(e)) {
-		ss << iL->getValue();
-	} else if (node::DoubleLiteral *dL = dynamic_cast<node::DoubleLiteral *>(e)) {
-		ss << dL->getValue();
-	} else if (node::StringLiteral *sL = dynamic_cast<node::StringLiteral *>(e)) {
-		ss << sL->getValue();
-	} else if (node::BoolLiteral *bL = dynamic_cast<node::BoolLiteral *>(e)) {
-		ss << bL->getValue();
-	} else if (node::VarReferenceExpression *vRE =
-			dynamic_cast<node::VarReferenceExpression *>(e)) {
-		ss << vRE->getName();
-	} else if (node::FuncCallExpression *fCE =
-			dynamic_cast<node::FuncCallExpression *>(e)) {
-		ss << fCE->getName() << "(";
-		checkExpressionList(fCE->getArguments());
-		ss << ")";
-	} else if (node::ArrayAccessExpression *aAE =
-			dynamic_cast<node::ArrayAccessExpression *>(e)) {
-		ss << aAE->getName() << "[";
-		checkExpression(aAE->getIndexExpression());
-		ss << "]";
-	} else if (node::UnaryExpression *uE =
-			dynamic_cast<node::UnaryExpression *>(e)) {
-		node::Expression *e = uE->getExpression();
+void ASTVisitor::checkUnaryExpression(node::UnaryExpression *e) {
+	node::Expression *nE = e->getExpression();
+	ss << token::getSourceString(e->getOperationType());
+	nE->accept(this);
+}
+void ASTVisitor::checkBinaryExpression(node::BinaryExpression *e) {
+	node::Expression *eL = e->getLeftExpression();
+	node::Expression *eR = e->getRightExpression();
 
-		ss << token::getSourceString(uE->getOperationType());
-		checkExpression(e);
-	} else if (node::BinaryExpression *bE =
-			dynamic_cast<node::BinaryExpression *>(e)) {
-		node::Expression *eL = bE->getLeftExpression();
-		node::Expression *eR = bE->getRightExpression();
+	if (eL != NULL)
+		eL->accept(this);
 
-		if (eL != NULL)
-			checkExpression(eL);
-
-		ss << token::getSourceString(bE->getOperationType());
-		checkExpression(eR);
-	} else if (node::ParenthesesExpression *pE =
-			dynamic_cast<node::ParenthesesExpression *>(e)) {
-		ss << "(";
-		checkExpression(pE->getExpression());
-		ss << ")";
-	} else {
-		assert(false);
-	}
+	ss << token::getSourceString(e->getOperationType());
+	eR->accept(this);
+}
+void ASTVisitor::checkParenthesesExpression(node::ParenthesesExpression *e) {
+	ss << "(";
+	e->getExpression()->accept(this);
+	ss << ")";
+}
+void ASTVisitor::checkIntLiteral(node::IntLiteral *e) {
+	ss << e->getValue();
+}
+void ASTVisitor::checkDoubleLiteral(node::DoubleLiteral *e) {
+	ss << e->getValue();
+}
+void ASTVisitor::checkStringLiteral(node::StringLiteral *e) {
+	ss << e->getValue();
+}
+void ASTVisitor::checkBoolLiteral(node::BoolLiteral *e) {
+	ss << e->getValue();
+}
+void ASTVisitor::checkVarReferenceExpression(node::VarReferenceExpression *e) {
+	ss << e->getName();
+}
+void ASTVisitor::checkFuncCallExpression(node::FuncCallExpression *e) {
+	ss << e->getName() << "(";
+	checkExpressionList(e->getArguments());
+	ss << ")";
+}
+void ASTVisitor::checkArrayAccessExpression(node::ArrayAccessExpression *e) {
+	ss << e->getName() << "[";
+	e->getIndexExpression()->accept(this);
+	ss << "]";
 }
 
 void ASTVisitor::checkExpressionList(
 		const std::vector<node::Expression *> &fAL) {
 	for (std::vector<node::Expression *>::const_iterator it = fAL.begin();
 			it != fAL.end(); ++it) {
-		checkExpression(*it);
-
+		fAL.at(it-fAL.begin())->accept(this);
 		if ((it + 1) != fAL.end()) {
 			ss << ", ";
 		}
@@ -180,7 +177,8 @@ void DuplicatesCheck::checkProgram(node::Program *p) {
 					&& fN.compare(
 							dynamic_cast<node::FuncDecl *>(*it2)->getName())
 							== 0) {
-				std::cout << "Duplicate function  name found: " << fN << std::endl;
+				std::cout << "Duplicate function  name found: " << fN
+						<< std::endl;
 			}
 		}
 	}
@@ -202,7 +200,8 @@ void DuplicatesCheck::checkVarDeclList(
 					&& vN.compare(
 							dynamic_cast<node::VarDecl *>(*it2)->getName())
 							== 0) {
-				std::cout << "Duplicate variable name found: " << vN << std::endl;
+				std::cout << "Duplicate variable name found: " << vN
+						<< std::endl;
 			}
 		}
 	}

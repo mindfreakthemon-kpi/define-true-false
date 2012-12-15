@@ -14,7 +14,7 @@ namespace node {
 
 class Expression {
 public:
-	void accept(Seman::ASTVisitor *v);
+	virtual void accept(Seman::ASTVisitor *v) = 0;
 
 	virtual ~Expression() = 0;
 };
@@ -35,6 +35,8 @@ public:
 	token::TokenKind getOperationType() const {
 		return operation;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	Expression *expr;
@@ -60,6 +62,8 @@ public:
 		return operation;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	Expression *leftExpr;
 	Expression *rightExpr;
@@ -76,6 +80,8 @@ public:
 		return expr;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	Expression *expr;
 };
@@ -89,6 +95,8 @@ public:
 	uint32_t getValue() const {
 		return value;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	uint32_t value;
@@ -104,6 +112,8 @@ public:
 		return value;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	double value;
 };
@@ -117,6 +127,8 @@ public:
 	const std::string &getValue() const {
 		return value;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	std::string value;
@@ -132,6 +144,8 @@ public:
 		return value;
 	}
 
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	bool value;
 };
@@ -145,6 +159,8 @@ public:
 	const std::string &getName() const {
 		return name;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
 
 private:
 	std::string name;
@@ -163,6 +179,9 @@ public:
 	const std::vector<Expression *> &getArguments() const {
 		return args;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	std::string name;
 	std::vector<Expression *> args;
@@ -181,6 +200,9 @@ public:
 	Expression *getIndexExpression() const {
 		return index;
 	}
+
+	virtual void accept(Seman::ASTVisitor *v);
+
 private:
 	std::string name;
 	Expression * index;

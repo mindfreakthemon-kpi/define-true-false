@@ -18,6 +18,16 @@ class FuncDecl;
 class VarDecl;
 class Statement;
 class Expression;
+class UnaryExpression;
+class BinaryExpression;
+class ParenthesesExpression;
+class IntLiteral;
+class DoubleLiteral;
+class StringLiteral;
+class BoolLiteral;
+class VarReferenceExpression;
+class FuncCallExpression;
+class ArrayAccessExpression;
 }
 
 namespace Seman {
@@ -29,7 +39,16 @@ public:
 	virtual void checkFuncDecl(node::FuncDecl *fD);
 	virtual void checkVarDecl(node::VarDecl *vD);
 	virtual void checkStatement(node::Statement *s);
-	virtual void checkExpression(node::Expression *e);
+	virtual void checkUnaryExpression(node::UnaryExpression *e);
+	virtual void checkBinaryExpression(node::BinaryExpression *e);
+	virtual void checkParenthesesExpression(node::ParenthesesExpression *e);
+	virtual void checkIntLiteral(node::IntLiteral *e);
+	virtual void checkDoubleLiteral(node::DoubleLiteral *e);
+	virtual void checkStringLiteral(node::StringLiteral *e);
+	virtual void checkBoolLiteral(node::BoolLiteral *e);
+	virtual void checkVarReferenceExpression(node::VarReferenceExpression *e);
+	virtual void checkFuncCallExpression(node::FuncCallExpression *e);
+	virtual void checkArrayAccessExpression(node::ArrayAccessExpression *e);
 	void checkVarDeclList(const std::vector<node::VarDecl *> &fPDL);
 	void checkStatementList(const std::vector<node::Statement *> &sL);
 	void checkExpressionList(const std::vector<node::Expression *> &fAL);
