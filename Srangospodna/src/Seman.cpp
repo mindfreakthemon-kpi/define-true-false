@@ -197,11 +197,71 @@ void DuplicatesCheck::checkVarDeclList(
 	}
 }
 
+
+void ReturnCheck::checkFuncDecl(node::FuncDecl *fD) {
+	returnType = fD->getReturnType();
+	checkStatementList(fD->getStatementsList());
+}
+
+void ReturnCheck::checkStatementList(const std::vector<node::Statement *> &sL) {
+	std::vector<node::Statement *>::const_iterator it = sL.begin();
+	for (std::vector<node::Statement *>::const_iterator it = sL.begin();
+			it != sL.end(); ++it) {
+		if (node::ReturnStatement *rS =
+				dynamic_cast<node::ReturnStatement *>(*it)) {
+			rS->getReturnExpression()->accept(this);
+			return;
+		}
+	}
+	logger->error((returnType)->getSourceLocation(), "No return expression");
+}
+
+void ReturnCheck::checkUnaryExpression(node::UnaryExpression *e) {
+
+}
+void ReturnCheck::checkBinaryExpression(node::BinaryExpression *e) {
+
+}
+void ReturnCheck::checkParenthesesExpression(node::ParenthesesExpression *e) {
+
+}
+void ReturnCheck::checkIntLiteral(node::IntLiteral *e) {
+	if (returnType->getDataType() != token::TYPE_INT) {
+		logger->error((*e).getSourceLocation(), "Return type is not ", token::dataTypeString(returnType->getDataType()));
+	}
+}
+void ReturnCheck::checkDoubleLiteral(node::DoubleLiteral *e) {
+	if (returnType->getDataType() != token::TYPE_DOUBLE) {
+		logger->error((*e).getSourceLocation(), "Return type is not ", token::dataTypeString(returnType->getDataType()));
+	}
+}
+void ReturnCheck::checkStringLiteral(node::StringLiteral *e) {
+	if (returnType->getDataType() != token::TYPE_STRING) {
+		logger->error((*e).getSourceLocation(), "Return type is not ", token::dataTypeString(returnType->getDataType()));
+	}
+}
+void ReturnCheck::checkBoolLiteral(node::BoolLiteral *e) {
+	if (returnType->getDataType() != token::TYPE_BOOL) {
+		logger->error((*e).getSourceLocation(), "Return type is not ", token::dataTypeString(returnType->getDataType()));
+	}
+}
+void ReturnCheck::checkVarReferenceExpression(node::VarReferenceExpression *e) {
+
+}
+void ReturnCheck::checkFuncCallExpression(node::FuncCallExpression *e) {
+
+}
+void ReturnCheck::checkArrayAccessExpression(node::ArrayAccessExpression *e) {
+
+}
+
 void Sema::checkAll(node::Program *p) {
 	sD = new ASTVisitor();
 	dC = new DuplicatesCheck();
+	rC = new ReturnCheck();
 	p->accept(sD);
 	p->accept(dC);
+	p->accept(rC);
 }
 
 std::string Sema::getSyntaxDumperResults() {

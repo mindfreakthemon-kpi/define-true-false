@@ -34,6 +34,7 @@ class BoolLiteral;
 class VarReferenceExpression;
 class FuncCallExpression;
 class ArrayAccessExpression;
+class VarType;
 }
 
 namespace Seman {
@@ -86,6 +87,31 @@ private:
 	ErrorLoggerWrapper *logger;
 };
 
+class ReturnCheck: public ASTVisitor {
+public:
+	ReturnCheck() :
+			ASTVisitor() {
+		StdoutErrorLogger *eL = new StdoutErrorLogger();
+		logger = new ErrorLoggerWrapper(eL);
+	}
+	virtual void checkFuncDecl(node::FuncDecl *fD);
+	virtual void checkUnaryExpression(node::UnaryExpression *e);
+	virtual void checkBinaryExpression(node::BinaryExpression *e);
+	virtual void checkParenthesesExpression(node::ParenthesesExpression *e);
+	virtual void checkIntLiteral(node::IntLiteral *e);
+	virtual void checkDoubleLiteral(node::DoubleLiteral *e);
+	virtual void checkStringLiteral(node::StringLiteral *e);
+	virtual void checkBoolLiteral(node::BoolLiteral *e);
+	virtual void checkVarReferenceExpression(node::VarReferenceExpression *e);
+	virtual void checkFuncCallExpression(node::FuncCallExpression *e);
+	virtual void checkArrayAccessExpression(node::ArrayAccessExpression *e);
+	void checkStatementList(const std::vector<node::Statement *> &sL);
+private:
+	std::stringstream ss;
+	ErrorLoggerWrapper *logger;
+	node::VarType *returnType;
+};
+
 class Sema {
 public:
 	void checkAll(node::Program *p);
@@ -93,6 +119,7 @@ public:
 private:
 	ASTVisitor *sD;
 	DuplicatesCheck *dC;
+	ReturnCheck *rC;
 };
 }
 
